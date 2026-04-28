@@ -1,0 +1,1140 @@
+import { useState, useEffect, useRef } from "react";
+ 
+// ─── ICONS ────────────────────────────────────────────────────────────────────
+const Icon = {
+  Home:   ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>,
+  Cal:    ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
+  Clip:   ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>,
+  Box:    ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>,
+  Scan:   ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>,
+  Msg:    ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+  Shield: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  Chart:  ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>,
+  Staff:  ()=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,
+  Out:    ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>,
+  Mic:    ()=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>,
+  Send:   ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+  Lock:   ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
+  Cam:    ()=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+  Chk:    ()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  Xmark:  ()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Plus:   ()=><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  ChevL:  ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
+  ChevR:  ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+};
+ 
+// ─── COLORS ───────────────────────────────────────────────────────────────────
+const C = {
+  bg:"#05090e", bg1:"#0a1119", bg2:"#0f1822", bg3:"#141f2c",
+  cyan:"#00e5ff", cyanA:"rgba(0,229,255,0.12)", cyanB:"rgba(0,229,255,0.06)",
+  border:"rgba(0,229,255,0.1)", border2:"rgba(0,229,255,0.28)",
+  orange:"#ff9f0a", red:"#ff3b30", green:"#32d74b", pink:"#ff6b9d", gold:"#ffd060",
+  text:"#daeef8", dim:"#4a7a94",
+};
+ 
+const GCSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:${C.bg};color:${C.text};font-family:'Rajdhani',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;overflow-x:hidden}
+  ::-webkit-scrollbar{width:2px}::-webkit-scrollbar-track{background:${C.bg}}::-webkit-scrollbar-thumb{background:${C.border2};border-radius:2px}
+  select option{background:#0a1119}
+  input::placeholder,textarea::placeholder{color:#2a4a5a}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.04)}70%{transform:scale(1)}}
+  @keyframes spinA{to{transform:rotate(360deg)}}
+  @keyframes spinB{to{transform:rotate(-360deg)}}
+  @keyframes spinC{0%{transform:rotate(0deg)}100%{transform:rotate(540deg)}}
+  @keyframes glowP{0%,100%{opacity:.4}50%{opacity:1}}
+  @keyframes thinking{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+`;
+ 
+// ─── YCK ORB ─────────────────────────────────────────────────────────────────
+function YCKOrb({ size=36, state="idle", onClick }) {
+  const isL = state==="listening", isT = state==="thinking";
+  const col  = isT ? C.red : isL ? C.orange : C.cyan;
+  const glow = isT ? "rgba(255,59,48,.45)" : isL ? "rgba(255,159,10,.45)" : "rgba(0,229,255,.38)";
+  const spA  = isT ? ".45s" : "3s", spB = isT ? ".65s" : "4.8s";
+  const spC  = isT ? ".8s"  : "6.5s", spD = isT ? ".35s" : "8.5s";
+  const cx   = size/2;
+  const sc   = size/80;
+ 
+  // 12 rings
+  const rings = [
+    {r:.92,da:"3 8",   sp:spA, dir:"spinA", w:.8, op:.45},
+    {r:.85,da:"7 4",   sp:spB, dir:"spinB", w:1.5,op:.7},
+    {r:.77,da:"1 7",   sp:spC, dir:"spinA", w:.6, op:.4},
+    {r:.70,da:"4 5",   sp:spD, dir:"spinB", w:1,  op:.6},
+    {r:.62,da:"10 3",  sp:spA, dir:"spinA", w:.7, op:.5},
+    {r:.54,da:"2 5",   sp:spB, dir:"spinB", w:1.2,op:.75},
+    {r:.46,da:"5 2",   sp:spC, dir:"spinA", w:.5, op:.4},
+    {r:.38,da:"2 4",   sp:spD, dir:"spinB", w:.8, op:.55},
+    // arc highlights
+    {r:.90,da:"0 11 3.5 0",sp:spD,dir:"spinA",w:2.2,op:.95},
+    {r:.71,da:"0 7.5 2 0", sp:spC,dir:"spinB",w:1.8,op:.88},
+    {r:.53,da:"0 4.5 1 0", sp:spB,dir:"spinA",w:1.5,op:.78},
+    {r:.35,da:"0 3 .8 0",  sp:spA,dir:"spinB",w:1.2,op:.8},
+  ];
+ 
+  // YCK letter SVG paths
+  const yckPaths = size>=70 ? [
+    `M${10*sc} ${18*sc} L${20*sc} ${33*sc} L${30*sc} ${18*sc} M${20*sc} ${33*sc} L${20*sc} ${48*sc}`,
+    `M${46*sc} ${22*sc} A${9*sc} ${9*sc} 0 1 0 ${46*sc} ${44*sc}`,
+    `M${57*sc} ${18*sc} L${57*sc} ${48*sc} M${57*sc} ${33*sc} L${69*sc} ${18*sc} M${57*sc} ${33*sc} L${69*sc} ${48*sc}`,
+  ] : [];
+ 
+  return (
+    <div onClick={onClick} style={{width:size,height:size,position:"relative",cursor:onClick?"pointer":"default",flexShrink:0,animation:state==="idle"?"heartbeat 2.8s ease-in-out infinite":"none"}}>
+      <div style={{position:"absolute",inset:-size*.13,borderRadius:"50%",background:`radial-gradient(circle,${glow} 0%,transparent 68%)`,pointerEvents:"none",animation:"glowP 2s ease-in-out infinite"}}/>
+      <svg style={{position:"absolute",inset:0,overflow:"visible"}} width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {rings.map((rg,i)=>(
+          <circle key={i} cx={cx} cy={cx} r={rg.r*cx} fill="none" stroke={col} strokeWidth={rg.w} strokeOpacity={rg.op} strokeDasharray={rg.da}
+            style={{animation:`${rg.dir} ${rg.sp} linear infinite`,transformOrigin:`${cx}px ${cx}px`}}/>
+        ))}
+        {[0,30,60,90,120,150,180,210,240,270,300,330].map((a,i)=>{
+          const rad=a*Math.PI/180, r=cx*.91;
+          return <circle key={i} cx={cx+r*Math.cos(rad)} cy={cx+r*Math.sin(rad)} r={size*.024} fill={col} fillOpacity={.65} style={{animation:`glowP ${1.2+i*.08}s ease-in-out infinite`}}/>;
+        })}
+        {yckPaths.map((d,i)=>(
+          <path key={i} d={d} fill="none" stroke={col} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"
+            strokeOpacity={isT?.6:.18} style={{animation:`glowP ${2+i*.6}s ease-in-out infinite`}}/>
+        ))}
+      </svg>
+      <div style={{position:"absolute",left:cx*.34,top:cx*.34,width:cx*1.32,height:cx*1.32,borderRadius:"50%",background:`radial-gradient(circle at 38% 34%,${col}bb,${col}33 52%,transparent 72%)`,boxShadow:`0 0 ${size*.14}px ${col},0 0 ${size*.28}px ${glow}`}}/>
+      {isT&&(
+        <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",gap:2}}>
+          {[0,1,2,3,4].map(i=><div key={i} style={{width:size*.034,height:size*.2,background:C.red,borderRadius:2,animation:`thinking .65s ${i*.11}s ease-in-out infinite`}}/>)}
+        </div>
+      )}
+      {isL&&<div style={{position:"absolute",inset:-size*.07,borderRadius:"50%",border:`2px solid ${C.orange}`,animation:"pulse .55s ease-in-out infinite"}}/>}
+    </div>
+  );
+}
+ 
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const STAFF = [
+  {id:1,  nome:"Yannick Gbedey",    ruolo:"Responsabile",  sede:"Entrambe",  ore:40, manager:true},
+  {id:2,  nome:"Matteo Anile",      ruolo:"Vice (Fisico)", sede:"Jolly",      ore:28, compleanno:"27/06", cell:"+39 349 4363746"},
+  {id:3,  nome:"Jessica Veneruso",  ruolo:"Vice (Org)",    sede:"Parini",     ore:32, alert:"MAI con De Luca"},
+  {id:4,  nome:"Adriana Macaluso",  ruolo:"Cucina",        sede:"Parini",     ore:30},
+  {id:5,  nome:"Stefania Ferraioli",ruolo:"Cucina",        sede:"Beauregard", ore:24, compleanno:"01/08"},
+  {id:6,  nome:"Adriana De Luca",   ruolo:"Operativo",     sede:"Parini",     ore:24, critico:true},
+  {id:7,  nome:"Cinzia Pinna",      ruolo:"Operativo",     sede:"Parini",     ore:24},
+  {id:8,  nome:"Carmela La Spina",  ruolo:"Operativo",     sede:"Beauregard", ore:24},
+  {id:9,  nome:"Amine Bouchrit",    ruolo:"Operativo",     sede:"Jolly",      ore:30, scadenza:true},
+  {id:10, nome:"Simone Sisstili",   ruolo:"Operativo",     sede:"Parini",     ore:30},
+  {id:11, nome:"Claudia Padovani",  ruolo:"Inattivo",      sede:"—",          ore:28, inattivo:true},
+];
+ 
+const TIPI_TURNO = ["Matt.","Pom.","Cucina","Resp.","Inventario","Corso","Apertura"];
+const TIPICOLOR = {"Cucina":C.orange,"Resp.":C.cyan,"Matt.":C.green,"Pom.":C.pink,"Inventario":"#a78bfa","Corso":"#60a5fa","Apertura":"#34d399"};
+ 
+const SETTIMANE_INIT = [
+  {
+    num:18, dal:"27/04", al:"03/05",
+    giorni:["Lun 27/4","Mar 28/4","Mer 29/4","Gio 30/4","Ven 1/5","Sab 2/5","Dom 3/5"],
+    Parini:[
+      {dipId:1,g:0,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:0,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:3,g:0,in:"16:00",fi:"21:00",tipo:"Pom."},
+      {dipId:10,g:0,in:"07:30",fi:"15:15",tipo:"Matt."},
+      {dipId:1,g:1,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:1,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:9,g:1,in:"11:30",fi:"16:00",tipo:"Matt."},
+      {dipId:3,g:1,in:"16:00",fi:"21:00",tipo:"Pom."},
+      {dipId:10,g:1,in:"07:00",fi:"11:00",tipo:"Matt."},
+      {dipId:1,g:2,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:2,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:9,g:2,in:"07:30",fi:"15:15",tipo:"Matt."},
+      {dipId:6,g:2,in:"11:00",fi:"16:00",tipo:"Pom."},
+      {dipId:3,g:2,in:"16:00",fi:"21:00",tipo:"Pom."},
+      {dipId:10,g:2,in:"07:00",fi:"11:00",tipo:"Matt."},
+      {dipId:1,g:3,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:3,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:9,g:3,in:"07:30",fi:"15:15",tipo:"Matt."},
+      {dipId:3,g:3,in:"08:00",fi:"14:00",tipo:"Matt."},
+      {dipId:10,g:3,in:"15:00",fi:"21:00",tipo:"Pom."},
+      {dipId:1,g:4,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:4,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:3,g:4,in:"08:00",fi:"14:00",tipo:"Inventario"},
+      {dipId:10,g:4,in:"08:30",fi:"12:30",tipo:"Matt."},
+      {dipId:4,g:5,in:"06:00",fi:"11:00",tipo:"Cucina"},
+      {dipId:3,g:5,in:"09:00",fi:"14:00",tipo:"Matt."},
+      {dipId:9,g:6,in:"09:00",fi:"14:00",tipo:"Matt."},
+      {dipId:10,g:6,in:"06:00",fi:"10:30",tipo:"Matt."},
+      {dipId:3,g:6,in:"06:00",fi:"10:30",tipo:"Matt."},
+    ],
+    Beauregard:[
+      {dipId:2,g:0,in:"13:00",fi:"17:30",tipo:"Pom."},
+      {dipId:5,g:0,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:0,in:"08:00",fi:"13:30",tipo:"Matt."},
+      {dipId:2,g:1,in:"07:00",fi:"13:45",tipo:"Matt."},
+      {dipId:5,g:1,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:1,in:"13:00",fi:"17:30",tipo:"Pom."},
+      {dipId:2,g:2,in:"13:30",fi:"17:30",tipo:"Pom."},
+      {dipId:5,g:2,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:2,in:"08:00",fi:"13:30",tipo:"Matt."},
+      {dipId:5,g:3,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:3,in:"13:30",fi:"17:30",tipo:"Pom."},
+      {dipId:6,g:3,in:"08:00",fi:"14:00",tipo:"Matt."},
+      {dipId:9,g:4,in:"12:00",fi:"17:30",tipo:"Pom."},
+      {dipId:5,g:4,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:4,in:"06:00",fi:"12:00",tipo:"Matt."},
+      {dipId:5,g:5,in:"06:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:5,in:"10:30",fi:"14:30",tipo:"Matt."},
+    ],
+  },
+  {
+    num:17, dal:"20/04", al:"26/04",
+    giorni:["Lun 20/4","Mar 21/4","Mer 22/4","Gio 23/4","Ven 24/4","Sab 25/4","Dom 26/4"],
+    Parini:[
+      {dipId:1,g:0,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:0,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:3,g:0,in:"15:00",fi:"21:00",tipo:"Pom."},
+      {dipId:10,g:0,in:"07:30",fi:"15:15",tipo:"Matt."},
+      {dipId:1,g:1,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:1,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:9,g:1,in:"07:30",fi:"15:15",tipo:"Matt."},
+      {dipId:3,g:1,in:"15:00",fi:"21:00",tipo:"Pom."},
+      {dipId:1,g:2,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:2,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:3,g:2,in:"11:00",fi:"15:00",tipo:"Matt."},
+      {dipId:1,g:3,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:3,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:3,g:3,in:"07:30",fi:"14:00",tipo:"Matt."},
+      {dipId:10,g:3,in:"07:00",fi:"11:00",tipo:"Matt."},
+      {dipId:1,g:4,in:"09:00",fi:"17:00",tipo:"Resp."},
+      {dipId:4,g:4,in:"05:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:3,g:4,in:"07:00",fi:"11:00",tipo:"Inventario"},
+      {dipId:4,g:5,in:"06:00",fi:"08:30",tipo:"Cucina"},
+      {dipId:3,g:6,in:"06:00",fi:"10:30",tipo:"Matt."},
+      {dipId:10,g:6,in:"10:30",fi:"16:30",tipo:"Pom."},
+    ],
+    Beauregard:[
+      {dipId:2,g:0,in:"08:00",fi:"13:30",tipo:"Matt."},
+      {dipId:5,g:0,in:"05:30",fi:"11:30",tipo:"Cucina"},
+      {dipId:8,g:0,in:"13:00",fi:"17:30",tipo:"Pom."},
+      {dipId:2,g:1,in:"07:00",fi:"11:00",tipo:"Matt."},
+      {dipId:5,g:1,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:1,in:"13:00",fi:"17:30",tipo:"Pom."},
+      {dipId:2,g:2,in:"13:00",fi:"17:30",tipo:"Pom."},
+      {dipId:5,g:2,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:2,in:"08:00",fi:"13:30",tipo:"Matt."},
+      {dipId:9,g:3,in:"13:00",fi:"17:30",tipo:"Pom."},
+      {dipId:5,g:3,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:3,in:"08:00",fi:"09:00",tipo:"Matt."},
+      {dipId:9,g:4,in:"08:00",fi:"13:30",tipo:"Matt."},
+      {dipId:5,g:4,in:"05:30",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:4,in:"13:00",fi:"17:30",tipo:"Pom."},
+      {dipId:5,g:5,in:"06:00",fi:"10:30",tipo:"Cucina"},
+      {dipId:8,g:5,in:"10:30",fi:"14:30",tipo:"Matt."},
+    ],
+  },
+];
+ 
+const ORDINI_INIT = [
+  {id:1,fornitore:"San Benedetto",sede:"Parini",    data:"23/04",prodotti:"Acqua nat. 1.5L x84, Frizzante 500ml x336, Thè x72",consegna:"28/04",stato:"In Attesa",bolla:false,foto:null},
+  {id:2,fornitore:"Coca-Cola",    sede:"Parini",    data:"13/04",prodotti:"CC 33cl x48, Fanta x24, Sprite x24",              consegna:"17/04",stato:"In Ritardo",bolla:false,foto:null},
+  {id:3,fornitore:"Lavazza",      sede:"Beauregard",data:"15/04",prodotti:"Caffè grani 1kg x10, Cialde x200",                consegna:"20/04",stato:"In Ritardo",bolla:false,foto:null},
+  {id:4,fornitore:"Ferrero",      sede:"Parini",    data:"17/04",prodotti:"Cornetti x100, Brioche x50",                      consegna:"19/04",stato:"Consegnato",bolla:true, foto:null},
+  {id:5,fornitore:"Gimoka",       sede:"Beauregard",data:"20/04",prodotti:"Caffè espresso kg 3 x4",                          consegna:"25/04",stato:"Consegnato",bolla:true, foto:null},
+];
+ 
+const AGENDA_INIT = [
+  {id:1,data:"30/04",tipo:"scadenza",   testo:"Contratto Amine Bouchrit — VERIFICA RINNOVO",urgente:true},
+  {id:2,data:"28/04",tipo:"ordine",     testo:"Coca-Cola Parini: in ritardo dal 17/04 — bolla mancante",urgente:true},
+  {id:3,data:"28/04",tipo:"ordine",     testo:"Lavazza Beauregard: in ritardo dal 20/04",urgente:true},
+  {id:4,data:"27/06",tipo:"compleanno", testo:"Compleanno Matteo Anile",urgente:false},
+  {id:5,data:"01/08",tipo:"compleanno", testo:"Compleanno Stefania Ferraioli",urgente:false},
+  {id:6,data:"05/05",tipo:"visita",     testo:"Visita medica Carmela La Spina",urgente:false},
+];
+ 
+const RICHIESTE_INIT = [
+  {id:1,dipNome:"Jessica Veneruso",tipo:"Giorno libero",data:"23/04",stato:"In attesa",nota:"Visita medica",conDip:null},
+  {id:2,dipNome:"Amine Bouchrit",  tipo:"Cambio turno", data:"21/04",stato:"In attesa",nota:"Impegno personale",conDip:"Simone Sisstili"},
+];
+ 
+const GIACENZE = {
+  Parini:[
+    {prod:"Caffè grani Gimoka",  cat:"Caffetteria",qta:6,   unit:"kg",  minimo:3,  scad:"15/05",prezzo:18},
+    {prod:"Acqua nat. 500ml",    cat:"Bevande",    qta:120, unit:"bott",minimo:48, scad:"30/06",prezzo:.6},
+    {prod:"Acqua frizzante 500ml",cat:"Bevande",   qta:80,  unit:"bott",minimo:48, scad:"30/06",prezzo:.6},
+    {prod:"Coca-Cola 33cl",      cat:"Bevande",    qta:24,  unit:"bott",minimo:48, scad:"30/06",prezzo:.8},
+    {prod:"Cornetti surgelati",  cat:"Pasticceria",qta:48,  unit:"pz",  minimo:24, scad:"10/05",prezzo:.9},
+    {prod:"Prosciutto cotto",    cat:"Salumi",     qta:2.4, unit:"kg",  minimo:1,  scad:"30/04",prezzo:15},
+    {prod:"Mozzarella filone",   cat:"Latticini",  qta:1.8, unit:"kg",  minimo:1,  scad:"29/04",prezzo:7},
+    {prod:"Pane fresco",         cat:"Pane",       qta:8,   unit:"kg",  minimo:4,  scad:"28/04",prezzo:2},
+    {prod:"Prosciutto crudo",    cat:"Salumi",     qta:1.5, unit:"kg",  minimo:1,  scad:"05/05",prezzo:28},
+    {prod:"Edamer",              cat:"Latticini",  qta:2,   unit:"kg",  minimo:1,  scad:"10/05",prezzo:9},
+  ],
+  Beauregard:[
+    {prod:"Caffè grani Gimoka",  cat:"Caffetteria",qta:3,   unit:"kg",  minimo:2,  scad:"20/05",prezzo:18},
+    {prod:"Acqua nat. 500ml",    cat:"Bevande",    qta:60,  unit:"bott",minimo:24, scad:"30/06",prezzo:.6},
+    {prod:"Cornetti surgelati",  cat:"Pasticceria",qta:36,  unit:"pz",  minimo:12, scad:"10/05",prezzo:.9},
+    {prod:"Prosciutto cotto",    cat:"Salumi",     qta:1.2, unit:"kg",  minimo:.8, scad:"02/05",prezzo:15},
+    {prod:"Mozzarella filone",   cat:"Latticini",  qta:.8,  unit:"kg",  minimo:.5, scad:"29/04",prezzo:7},
+    {prod:"Pane fresco",         cat:"Pane",       qta:4,   unit:"kg",  minimo:2,  scad:"28/04",prezzo:2},
+  ],
+};
+ 
+// ─── STYLES ───────────────────────────────────────────────────────────────────
+const mono = {fontFamily:"'Share Tech Mono',monospace"};
+const S = {
+  header:{position:"sticky",top:0,zIndex:300,background:"rgba(5,9,14,.97)",borderBottom:`1px solid ${C.border}`,padding:"9px 14px",display:"flex",alignItems:"center",justifyContent:"space-between",backdropFilter:"blur(16px)"},
+  nav:{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,zIndex:300,background:"rgba(5,9,14,.98)",borderTop:`1px solid ${C.border}`,display:"flex",justifyContent:"space-around",padding:"7px 0 max(7px,env(safe-area-inset-bottom))"},
+  navBtn:(a)=>({display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"4px 6px",border:"none",background:"none",cursor:"pointer",color:a?C.cyan:C.dim,minWidth:46,position:"relative"}),
+  navLabel:{fontSize:8,letterSpacing:1,...mono,marginTop:1},
+  page:{padding:"12px 14px 88px",animation:"fadeUp .2s ease"},
+  card:(v)=>({background:v==="glow"?C.bg2:C.bg1,border:`1px solid ${v==="glow"?C.border2:v==="warn"?"rgba(255,159,10,.25)":v==="danger"?"rgba(255,59,48,.3)":v==="success"?"rgba(50,215,75,.25)":C.border}`,borderRadius:13,padding:"12px 14px",marginBottom:9}),
+  title:{...mono,fontSize:16,color:C.cyan,letterSpacing:3,marginBottom:13},
+  inp:{background:"#070e16",border:`1px solid ${C.border}`,borderRadius:9,padding:"10px 13px",color:C.text,fontSize:14,fontFamily:"'Rajdhani',sans-serif",width:"100%",outline:"none",WebkitAppearance:"none"},
+  lbl:{fontSize:10,color:C.dim,letterSpacing:2,...mono,marginBottom:4,display:"block"},
+  badge:(c)=>({background:`${c}15`,border:`1px solid ${c}30`,color:c,borderRadius:20,padding:"2px 9px",fontSize:10,letterSpacing:1,...mono,display:"inline-block",whiteSpace:"nowrap"}),
+  btn:(c,full)=>({background:`${c}12`,border:`1px solid ${c}35`,color:c,borderRadius:9,padding:"9px 13px",fontSize:11,letterSpacing:2,cursor:"pointer",...mono,fontWeight:700,width:full?"100%":"auto"}),
+  btnP:{background:`rgba(0,229,255,.12)`,border:`1px solid ${C.cyan}`,color:C.cyan,borderRadius:9,padding:"11px 18px",fontSize:12,letterSpacing:3,cursor:"pointer",...mono,fontWeight:700,width:"100%"},
+  row:{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8},
+  tabs:{display:"flex",gap:7,marginBottom:13},
+  tab:(a)=>({flex:1,padding:"7px 8px",borderRadius:9,border:`1px solid ${a?C.cyan:C.border}`,background:a?"rgba(0,229,255,.09)":"transparent",color:a?C.cyan:C.dim,fontSize:10,letterSpacing:2,cursor:"pointer",...mono}),
+};
+ 
+// ─── YARVICK AI HOOK ─────────────────────────────────────────────────────────
+function useYarvick(role, nome, richieste, setRichieste) {
+  const [orbState, setOrbState] = useState("idle");
+  const [msgs, setMsgs] = useState([]);
+  const [showChat, setShowChat] = useState(false);
+  const [input, setInput] = useState("");
+ 
+  const SYS = `Sei YARVICK, assistente AI di Sirio Bar — stile Jarvis. Professionale, diretto, proattivo. Italiano.
+SEDI: Parini (Lun-Ven 05:00-21:00, Sab 06:00-18:30, Dom 06:00-16:30) | Beauregard (Lun-Ven 05:30-17:30, Weekend 06:00-14:30)
+STAFF: ${STAFF.map(s=>`${s.nome}(${s.ruolo},${s.sede},${s.ore}h)`).join(",")}
+REGOLE: 1)MAI Jessica+Adriana De Luca 2)Carmela SEMPRE con Matteo/Amine a Beau. 3)Amine/Simone/Carmela no cucina 4)Macaluso sola Parini 05:00-07:00
+SCADENZE CRITICHE: Contratto Amine scade 30/04 — URGENTE. Coca-Cola Parini in ritardo. Lavazza Beau. in ritardo.
+VENDUTO 24/04 PARINI: Caffè espresso 323pz €333, Cappuccino 103pz, Panini totali 157pz €542, Acqua frizzante 131bott, Totale €2303.
+${role==="manager"?"Parli con YANNICK il responsabile. Puoi dare tutte le info e fare analisi.":"Parli con il dipendente "+nome+"."}`;
+ 
+  const send = async (text) => {
+    if (!text.trim()) return;
+    if (role==="dipendente" && /riposo|permesso|libero|ferie/i.test(text)) {
+      setMsgs(p=>[...p,{r:"u",t:text},{r:"a",t:`Richiesta inoltrata a Yannick. Riceverai conferma presto.`}]);
+      setRichieste(p=>[...p,{id:Date.now(),dipNome:nome,tipo:"Richiesta via Yarvick",data:new Date().toLocaleDateString("it"),stato:"In attesa",nota:text,conDip:null}]);
+      setInput(""); return;
+    }
+    const newMsgs=[...msgs,{r:"u",t:text}];
+    setMsgs(newMsgs); setInput(""); setOrbState("thinking");
+    try {
+      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:SYS,messages:newMsgs.map(m=>({role:m.r==="u"?"user":"assistant",content:m.t}))})});
+      const d=await res.json();
+      setMsgs([...newMsgs,{r:"a",t:d.content?.[0]?.text||"Errore."}]);
+    } catch { setMsgs([...newMsgs,{r:"a",t:"Connessione interrotta. Riprova."}]); }
+    setOrbState("idle");
+  };
+ 
+  const startVoice = () => {
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert("Microfono non supportato su questo browser");return;}
+    const r=new SR(); r.lang="it-IT";
+    r.onstart=()=>setOrbState("listening");
+    r.onresult=e=>{setInput(e.results[0][0].transcript);setOrbState("idle");};
+    r.onerror=()=>setOrbState("idle"); r.start();
+  };
+ 
+  return {orbState, msgs, showChat, setShowChat, input, setInput, send, startVoice};
+}
+ 
+// ─── YARVICK OVERLAY ─────────────────────────────────────────────────────────
+function YarvickOverlay({yv, onClose}) {
+  const bottomRef=useRef(null);
+  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:"smooth"});},[yv.msgs]);
+  const suggs=["Come va oggi?","Ordini in ritardo","Turni di domani","Giacenze basse","Contratto Amine"];
+ 
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:500,display:"flex",flexDirection:"column",background:"rgba(5,9,14,.97)",maxWidth:480,margin:"0 auto"}}>
+      <div style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <YCKOrb size={36} state={yv.orbState}/>
+          <div>
+            <div style={{...mono,fontSize:14,color:C.cyan,letterSpacing:3}}>YARVICK</div>
+            <div style={{fontSize:10,color:C.dim}}>{yv.orbState==="thinking"?"elabora...":yv.orbState==="listening"?"in ascolto...":"online"}</div>
+          </div>
+        </div>
+        <button onClick={onClose} style={{background:"transparent",border:`1px solid ${C.border}`,borderRadius:8,color:C.dim,padding:"6px 10px",cursor:"pointer",display:"flex",alignItems:"center"}}><Icon.Xmark/></button>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"12px 16px"}}>
+        {yv.msgs.length===0&&(
+          <div style={{textAlign:"center",paddingTop:16}}>
+            <div style={{color:C.dim,fontSize:13,marginBottom:14}}>Come posso aiutarti?</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center"}}>
+              {suggs.map(s=><button key={s} style={{fontSize:11,padding:"6px 12px",borderRadius:20,border:`1px solid ${C.border2}`,background:"rgba(0,229,255,.06)",color:C.cyan,cursor:"pointer",...mono}} onClick={()=>yv.send(s)}>{s}</button>)}
+            </div>
+          </div>
+        )}
+        {yv.msgs.map((m,i)=>(
+          <div key={i} style={{marginBottom:10,display:"flex",flexDirection:m.r==="u"?"row-reverse":"row",gap:8}}>
+            <div style={{maxWidth:"80%",background:m.r==="u"?"rgba(0,229,255,.1)":C.bg2,border:`1px solid ${m.r==="u"?C.border2:C.border}`,borderRadius:13,padding:"9px 13px",fontSize:13,lineHeight:1.6,whiteSpace:"pre-wrap"}}>{m.t}</div>
+          </div>
+        ))}
+        {yv.orbState==="thinking"&&<div style={{display:"flex",gap:4,padding:"10px 13px",background:C.bg2,borderRadius:13,border:`1px solid ${C.border}`,width:60,marginBottom:10}}>{[0,1,2].map(i=><div key={i} style={{width:5,height:14,background:C.gold,borderRadius:3,animation:`thinking .7s ${i*.15}s ease-in-out infinite`}}/>)}</div>}
+        <div ref={bottomRef}/>
+      </div>
+      <div style={{padding:"10px 14px",display:"flex",gap:8,alignItems:"center",borderTop:`1px solid ${C.border}`}}>
+        <button onClick={yv.startVoice} style={{width:42,height:42,borderRadius:"50%",background:yv.orbState==="listening"?"rgba(255,159,10,.15)":"rgba(0,229,255,.08)",border:`1px solid ${yv.orbState==="listening"?C.orange:C.border2}`,color:yv.orbState==="listening"?C.orange:C.cyan,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}><Icon.Mic/></button>
+        <input style={{...S.inp,flex:1}} placeholder="Scrivi..." value={yv.input} onChange={e=>yv.setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&yv.send(yv.input)}/>
+        <button onClick={()=>yv.send(yv.input)} style={{width:42,height:42,borderRadius:"50%",background:"rgba(0,229,255,.08)",border:`1px solid ${C.border2}`,color:C.cyan,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}><Icon.Send/></button>
+      </div>
+    </div>
+  );
+}
+ 
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
+function Login({onLogin}) {
+  const [email,setEmail]=useState(""); const [pass,setPass]=useState("");
+  const [err,setErr]=useState(""); const [orb,setOrb]=useState("idle");
+  const go=()=>{
+    setOrb("thinking");
+    setTimeout(()=>{
+      const USERS={"manager@yarvick.it":["manager","Yannick",1],"jessica@yarvick.it":["dipendente","Jessica",3],"matteo@yarvick.it":["dipendente","Matteo",2],"amine@yarvick.it":["dipendente","Amine",9],"carmela@yarvick.it":["dipendente","Carmela",8],"adriana@yarvick.it":["dipendente","Adriana M.",4],"stefania@yarvick.it":["dipendente","Stefania",5],"simone@yarvick.it":["dipendente","Simone",10]};
+      const u=USERS[email];
+      if(u&&(pass==="yarvick2026"||pass==="1234")){onLogin(...u);return;}
+      if(email.includes("@")&&pass.length>=4){onLogin("dipendente",email.split("@")[0],10);return;}
+      setErr("Credenziali non valide");setOrb("idle");
+    },1100);
+  };
+  return (
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:32,background:C.bg}}>
+      <style>{GCSS}</style>
+      <div style={{marginBottom:36,display:"flex",justifyContent:"center"}}><YCKOrb size={130} state={orb}/></div>
+      <div style={{width:"100%",maxWidth:290}}>
+        <div style={{marginBottom:9}}><label style={S.lbl}>EMAIL</label><input style={S.inp} placeholder="email@yarvick.it" value={email} onChange={e=>setEmail(e.target.value)} type="email"/></div>
+        <div style={{marginBottom:11}}><label style={S.lbl}>PASSWORD</label><input style={S.inp} placeholder="••••" value={pass} onChange={e=>setPass(e.target.value)} type="password" onKeyDown={e=>e.key==="Enter"&&go()}/></div>
+        {err&&<div style={{color:C.red,fontSize:11,textAlign:"center",marginBottom:8,...mono}}>{err}</div>}
+        <button style={S.btnP} onClick={go}>ACCEDI</button>
+        <div style={{marginTop:14,fontSize:9,color:C.dim,textAlign:"center",lineHeight:2,...mono}}>manager@yarvick.it / yarvick2026<br/>jessica·matteo·amine·carmela @yarvick.it / 1234</div>
+      </div>
+    </div>
+  );
+}
+ 
+// ─── TURNI GRID ───────────────────────────────────────────────────────────────
+function TurniGrid({dipId, isManager, settimane, setSett}) {
+  const [sIdx,setSIdx]=useState(0);
+  const [sede,setSede]=useState("Parini");
+  const [showAdd,setShowAdd]=useState(null);
+  const [form,setForm]=useState({dipId:"",in:"",fi:"",tipo:"Matt."});
+  const [err,setErr]=useState("");
+ 
+  const sett=settimane[sIdx]||settimane[0];
+  const turni=sett[sede]||[];
+  const rows=isManager?STAFF.filter(s=>!s.inattivo):STAFF.filter(s=>s.id===dipId);
+  const cellT=(dId,g)=>turni.filter(t=>t.dipId===dId&&t.g===g);
+ 
+  const addTurno=(g)=>{
+    const dip=STAFF.find(s=>s.id===parseInt(form.dipId));
+    if(!dip||!form.in||!form.fi){setErr("Compila tutti i campi");return;}
+    const pres=turni.filter(t=>t.g===g).map(t=>t.dipId);
+    if(dip.id===3&&pres.includes(6)){setErr("BLOCCO: Jessica NON può stare con Adriana De Luca");return;}
+    if(dip.id===6&&pres.includes(3)){setErr("BLOCCO: Adriana De Luca NON può stare con Jessica");return;}
+    const updated=settimane.map((s,i)=>i===sIdx?{...s,[sede]:[...(s[sede]||[]),{dipId:dip.id,g,in:form.in,fi:form.fi,tipo:form.tipo}]}:s);
+    setSett(updated);setShowAdd(null);setErr("");setForm({dipId:"",in:"",fi:"",tipo:"Matt."});
+  };
+ 
+  return (
+    <div style={S.page}>
+      <div style={{...S.card("glow"),display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",marginBottom:11}}>
+        <button onClick={()=>setSIdx(Math.min(settimane.length-1,sIdx+1))} style={{background:"transparent",border:"none",color:sIdx<settimane.length-1?C.cyan:C.dim,cursor:"pointer",display:"flex",alignItems:"center"}}><Icon.ChevL/></button>
+        <div style={{textAlign:"center"}}>
+          <div style={{...mono,fontSize:9,color:C.dim}}>SETTIMANA {sett.num}</div>
+          <div style={{...mono,fontSize:13,color:C.cyan}}>{sett.dal} → {sett.al}</div>
+        </div>
+        <button onClick={()=>setSIdx(Math.max(0,sIdx-1))} style={{background:"transparent",border:"none",color:sIdx>0?C.cyan:C.dim,cursor:"pointer",display:"flex",alignItems:"center"}}><Icon.ChevR/></button>
+      </div>
+ 
+      <div style={S.tabs}>
+        {["Parini","Beauregard"].map(s=><button key={s} style={S.tab(sede===s)} onClick={()=>setSede(s)}>{s.toUpperCase()}</button>)}
+      </div>
+ 
+      <div style={{overflowX:"auto",marginBottom:10,borderRadius:10,border:`1px solid ${C.border}`}}>
+        <table style={{borderCollapse:"collapse",minWidth:520,width:"100%"}}>
+          <thead>
+            <tr style={{background:C.bg3}}>
+              <th style={{...mono,fontSize:9,color:C.dim,padding:"6px 8px",textAlign:"left",position:"sticky",left:0,background:C.bg3,zIndex:2,minWidth:75,borderBottom:`1px solid ${C.border}`}}>NOME</th>
+              {sett.giorni.map((g,i)=>(
+                <th key={i} style={{...mono,fontSize:8,color:C.dim,padding:"6px 4px",textAlign:"center",minWidth:62,whiteSpace:"nowrap",borderBottom:`1px solid ${C.border}`}}>{g.split(" ").join("\n")}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(dip=>(
+              <tr key={dip.id} style={{background:dip.id===dipId?C.bg2:C.bg1}}>
+                <td style={{padding:"4px 8px",position:"sticky",left:0,background:dip.id===dipId?C.bg2:C.bg1,zIndex:1,verticalAlign:"top",borderBottom:`1px solid ${C.border}`}}>
+                  <div style={{fontSize:10,fontWeight:600,color:dip.id===dipId?C.cyan:dip.manager?C.cyan:C.text,whiteSpace:"nowrap"}}>{dip.nome.split(" ").map((w,i)=>i===0?w[0]+".":w).join(" ")}</div>
+                  <div style={{fontSize:8,color:C.dim}}>{dip.ruolo}</div>
+                </td>
+                {sett.giorni.map((_,gi)=>{
+                  const ct=cellT(dip.id,gi);
+                  return (
+                    <td key={gi} style={{padding:2,verticalAlign:"top",borderBottom:`1px solid ${C.border}`,borderLeft:`1px solid ${C.border}`,minHeight:36}}>
+                      {ct.length===0?(
+                        isManager?(
+                          <div onClick={()=>{setShowAdd({g:gi,dipId:dip.id});setForm({dipId:dip.id.toString(),in:"",fi:"",tipo:"Matt."});}} style={{height:38,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:C.dim,fontSize:16,opacity:.25}}>+</div>
+                        ):<div style={{height:38}}/>
+                      ):ct.map((t,ti)=>(
+                        <div key={ti} style={{background:`${TIPICOLOR[t.tipo]||C.dim}18`,borderLeft:`2px solid ${TIPICOLOR[t.tipo]||C.dim}`,borderRadius:3,padding:"2px 3px",marginBottom:1}}>
+                          <div style={{...mono,fontSize:7,color:TIPICOLOR[t.tipo]||C.dim}}>{t.tipo}</div>
+                          <div style={{...mono,fontSize:8,color:C.text}}>{t.in}–{t.fi}</div>
+                        </div>
+                      ))}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+ 
+      {showAdd&&isManager&&(
+        <div style={{...S.card("glow"),animation:"slideDown .2s ease"}}>
+          <div style={{...mono,fontSize:10,color:C.cyan,marginBottom:9}}>AGGIUNGI TURNO — {sett.giorni[showAdd.g]}</div>
+          <div style={{marginBottom:7}}><label style={S.lbl}>DIPENDENTE</label>
+            <select style={S.inp} value={form.dipId} onChange={e=>setForm({...form,dipId:e.target.value})}>
+              <option value="">Seleziona...</option>
+              {STAFF.filter(s=>!s.inattivo).map(s=><option key={s.id} value={s.id}>{s.nome}</option>)}
+            </select>
+          </div>
+          <div style={{display:"flex",gap:7,marginBottom:7}}>
+            <div style={{flex:1}}><label style={S.lbl}>INIZIO</label><input style={S.inp} placeholder="07:00" value={form.in} onChange={e=>setForm({...form,in:e.target.value})}/></div>
+            <div style={{flex:1}}><label style={S.lbl}>FINE</label><input style={S.inp} placeholder="15:00" value={form.fi} onChange={e=>setForm({...form,fi:e.target.value})}/></div>
+          </div>
+          <div style={{marginBottom:9}}><label style={S.lbl}>TIPO</label>
+            <select style={S.inp} value={form.tipo} onChange={e=>setForm({...form,tipo:e.target.value})}>
+              {TIPI_TURNO.map(t=><option key={t}>{t}</option>)}
+            </select>
+          </div>
+          {err&&<div style={{background:"rgba(255,59,48,.09)",border:"1px solid rgba(255,59,48,.3)",borderRadius:8,padding:"8px 11px",color:C.red,fontSize:12,marginBottom:8}}>{err}</div>}
+          <div style={{display:"flex",gap:7}}>
+            <button style={{...S.btn(C.green,false),flex:1}} onClick={()=>addTurno(showAdd.g)}>SALVA</button>
+            <button style={{...S.btn(C.dim,false),flex:1}} onClick={()=>{setShowAdd(null);setErr("");}}>ANNULLA</button>
+          </div>
+        </div>
+      )}
+ 
+      {!isManager&&(
+        <>
+          <div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:8,marginTop:4}}>I MIEI TURNI — {sede.toUpperCase()}</div>
+          {(sett[sede]||[]).filter(t=>t.dipId===dipId).length===0
+            ?<div style={{color:C.dim,fontSize:13,textAlign:"center"}}>Nessun turno su {sede} questa settimana</div>
+            :(sett[sede]||[]).filter(t=>t.dipId===dipId).map((t,i)=>{
+              const colleghi=(sett[sede]||[]).filter(x=>x.g===t.g&&x.dipId!==dipId);
+              return (
+                <div key={i} style={{...S.card("glow"),marginBottom:8}}>
+                  <div style={S.row}>
+                    <div>
+                      <div style={{...mono,fontSize:13,color:C.text}}>{sett.giorni[t.g]}</div>
+                      <div style={{fontSize:11,color:TIPICOLOR[t.tipo]||C.dim}}>{t.tipo}</div>
+                      {colleghi.length>0&&<div style={{fontSize:11,color:C.dim,marginTop:2}}>Con: {colleghi.map(c=>STAFF.find(s=>s.id===c.dipId)?.nome.split(" ")[1]||"").filter(Boolean).join(", ")}</div>}
+                    </div>
+                    <div style={{...mono,color:C.cyan,fontSize:14,fontWeight:700}}>{t.in}–{t.fi}</div>
+                  </div>
+                </div>
+              );
+            })
+          }
+        </>
+      )}
+    </div>
+  );
+}
+ 
+// ─── MANAGER HOME ─────────────────────────────────────────────────────────────
+function ManagerHome({onNav, richieste, ordini}) {
+  const oggi=new Date();
+  const isRitardo=(o)=>{
+    if(o.stato==="Consegnato")return false;
+    const [d,m]=o.consegna.split("/").map(Number);
+    return oggi>new Date(2026,m-1,d);
+  };
+ 
+  const notifiche=[
+    ...ordini.filter(isRitardo).map(o=>({tipo:"danger",testo:`${o.fornitore} ${o.sede} — in ritardo dal ${o.consegna}${o.bolla?"":" · bolla mancante"}`,nav:"ordini"})),
+    {tipo:"danger",testo:"Contratto Amine Bouchrit scade 30/04 — urgente",nav:"agenda"},
+    ...richieste.filter(r=>r.stato==="In attesa").map(r=>({tipo:"warn",testo:`${r.dipNome}: ${r.tipo} per ${r.data}`,nav:"richieste"})),
+  ];
+ 
+  const oggiTurni=[...SETTIMANE_INIT[0].Parini,...SETTIMANE_INIT[0].Beauregard].filter(t=>t.g===0);
+ 
+  return (
+    <div style={S.page}>
+      <div style={{marginBottom:14}}>
+        <div style={{...mono,fontSize:19,color:C.cyan,letterSpacing:2}}>CENTRO COMANDO</div>
+        <div style={{fontSize:11,color:C.dim,marginTop:2}}>Sett. 18 · 27/04 – 03/05/2026</div>
+      </div>
+ 
+      {notifiche.length>0&&(
+        <div style={{...S.card(""),padding:0,overflow:"hidden",marginBottom:9,borderColor:"rgba(255,159,10,.25)"}}>
+          <div style={{padding:"9px 14px 7px",borderBottom:`1px solid rgba(255,159,10,.15)`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{...mono,fontSize:9,color:C.orange}}>NOTIFICHE ({notifiche.length})</div>
+            <div style={{fontSize:9,color:C.dim}}>scorri ↕</div>
+          </div>
+          <div style={{maxHeight:180,overflowY:"auto",padding:"7px 12px"}}>
+            {notifiche.map((n,i)=>(
+              <div key={i} onClick={()=>onNav(n.nav)} style={{background:n.tipo==="danger"?"rgba(255,59,48,.07)":"rgba(255,159,10,.05)",borderLeft:`2px solid ${n.tipo==="danger"?C.red:C.orange}`,borderRadius:7,padding:"6px 10px",marginBottom:5,fontSize:12,color:n.tipo==="danger"?"#ff8a80":"#ffcc70",lineHeight:1.4,cursor:"pointer"}}>{n.testo}</div>
+            ))}
+          </div>
+        </div>
+      )}
+ 
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:9}}>
+        {[
+          {label:"Turni oggi",val:oggiTurni.length,color:C.cyan,nav:"turni"},
+          {label:"Ordini attivi",val:ordini.filter(o=>o.stato!=="Consegnato").length,color:C.orange,nav:"ordini"},
+          {label:"Richieste",val:richieste.filter(r=>r.stato==="In attesa").length,color:C.pink,nav:"richieste"},
+        ].map((s,i)=>(
+          <div key={i} style={{...S.card(""),cursor:"pointer",textAlign:"center",padding:"11px 6px",borderColor:`${s.color}18`}} onClick={()=>onNav(s.nav)}>
+            <div style={{...mono,fontSize:24,fontWeight:800,color:s.color,lineHeight:1}}>{s.val}</div>
+            <div style={{fontSize:10,color:C.dim,marginTop:3}}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+ 
+      <div style={S.card("")}>
+        <div style={{...S.row,marginBottom:9}}>
+          <div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2}}>QUESTA SETTIMANA</div>
+          <button style={{...S.btn(C.cyan),padding:"3px 9px",fontSize:9}} onClick={()=>onNav("agenda")}>Tutto →</button>
+        </div>
+        {AGENDA_INIT.filter(a=>a.urgente).map(a=>(
+          <div key={a.id} style={{fontSize:12,color:"#ff8a80",background:"rgba(255,59,48,.05)",borderRadius:7,padding:"6px 10px",marginBottom:5}}>⚑ {a.data} — {a.testo}</div>
+        ))}
+        {AGENDA_INIT.filter(a=>!a.urgente).slice(0,2).map(a=>(
+          <div key={a.id} style={{fontSize:12,color:C.dim,padding:"4px 0",borderBottom:`1px solid ${C.border}`}}>{a.data} — {a.testo}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+ 
+// ─── MANAGER AGENDA ───────────────────────────────────────────────────────────
+function ManagerAgenda() {
+  const [items,setItems]=useState(AGENDA_INIT);
+  const [form,setForm]=useState({data:"",tipo:"scadenza",testo:""});
+  const [show,setShow]=useState(false);
+  const tipoC={scadenza:C.red,ordine:C.orange,compleanno:C.pink,visita:C.cyan};
+  const tipoL={scadenza:"SCADENZA",ordine:"ORDINE",compleanno:"COMPLEANNO",visita:"VISITA"};
+  return (
+    <div style={S.page}>
+      <div style={{...S.row,marginBottom:13}}>
+        <div style={S.title}>AGENDA</div>
+        <button style={{...S.btn(C.cyan),display:"flex",alignItems:"center",gap:4,padding:"7px 11px"}} onClick={()=>setShow(!show)}><Icon.Plus/> Evento</button>
+      </div>
+      {show&&(
+        <div style={{...S.card("glow"),marginBottom:11}}>
+          <div style={{marginBottom:7}}><label style={S.lbl}>DATA</label><input style={S.inp} placeholder="gg/mm" value={form.data} onChange={e=>setForm({...form,data:e.target.value})}/></div>
+          <div style={{marginBottom:7}}><label style={S.lbl}>TIPO</label><select style={S.inp} value={form.tipo} onChange={e=>setForm({...form,tipo:e.target.value})}><option value="scadenza">Scadenza</option><option value="ordine">Ordine</option><option value="compleanno">Compleanno</option><option value="visita">Visita</option></select></div>
+          <div style={{marginBottom:9}}><label style={S.lbl}>DESCRIZIONE</label><input style={S.inp} placeholder="..." value={form.testo} onChange={e=>setForm({...form,testo:e.target.value})}/></div>
+          <div style={{display:"flex",gap:7}}><button style={{...S.btn(C.green,false),flex:1}} onClick={()=>{if(!form.testo||!form.data)return;setItems([...items,{id:Date.now(),...form,urgente:form.tipo==="scadenza"}]);setForm({data:"",tipo:"scadenza",testo:""});setShow(false);}}>SALVA</button><button style={{...S.btn(C.dim,false),flex:1}} onClick={()=>setShow(false)}>ANNULLA</button></div>
+        </div>
+      )}
+      {items.map(item=>{
+        const c=tipoC[item.tipo]||C.cyan;
+        return (
+          <div key={item.id} style={{...S.card(""),borderLeft:`3px solid ${c}`,paddingLeft:13}}>
+            <div style={S.row}>
+              <div style={{flex:1}}><div style={{...mono,fontSize:9,color:c,letterSpacing:2,marginBottom:3}}>{tipoL[item.tipo]}</div><div style={{fontSize:14}}>{item.testo}</div></div>
+              <div style={{textAlign:"right",flexShrink:0}}><div style={{...mono,fontSize:10,color:C.dim}}>{item.data}</div>{item.urgente&&<div style={{...mono,fontSize:8,color:C.red,marginTop:2}}>URGENTE</div>}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+ 
+// ─── MANAGER ORDINI ───────────────────────────────────────────────────────────
+function ManagerOrdini({ordini, setOrdini}) {
+  const [filtro,setFiltro]=useState("Attivi");
+  const [show,setShow]=useState(false);
+  const [form,setForm]=useState({fornitore:"",sede:"Parini",prodotti:"",consegna:""});
+  const [viewBolla,setViewBolla]=useState(null);
+ 
+  const oggi=new Date();
+  const isRitardo=(o)=>{if(o.stato==="Consegnato")return false;const [d,m]=o.consegna.split("/").map(Number);return oggi>new Date(2026,m-1,d);};
+  const statoC=(o)=>isRitardo(o)?C.red:o.stato==="Consegnato"?C.green:C.orange;
+  const statoLabel=(o)=>isRitardo(o)?"In Ritardo":o.stato;
+ 
+  const attivi=ordini.filter(o=>o.stato!=="Consegnato");
+  const consegnati=ordini.filter(o=>o.stato==="Consegnato");
+  const filtrati=filtro==="Attivi"?attivi:filtro==="Consegnati"?consegnati:ordini;
+ 
+  return (
+    <div style={S.page}>
+      <div style={{...S.row,marginBottom:13}}>
+        <div style={S.title}>ORDINI</div>
+        <button style={{...S.btn(C.cyan),display:"flex",alignItems:"center",gap:4,padding:"7px 11px"}} onClick={()=>setShow(!show)}><Icon.Plus/> Ordine</button>
+      </div>
+      <div style={S.tabs}>
+        {["Attivi","Consegnati","Tutti"].map(f=><button key={f} style={S.tab(filtro===f)} onClick={()=>setFiltro(f)}>{f} ({f==="Attivi"?attivi.length:f==="Consegnati"?consegnati.length:ordini.length})</button>)}
+      </div>
+      {show&&(
+        <div style={{...S.card("glow"),marginBottom:11}}>
+          <div style={{marginBottom:7}}><label style={S.lbl}>FORNITORE</label><input style={S.inp} value={form.fornitore} onChange={e=>setForm({...form,fornitore:e.target.value})}/></div>
+          <div style={{marginBottom:7}}><label style={S.lbl}>SEDE</label><select style={S.inp} value={form.sede} onChange={e=>setForm({...form,sede:e.target.value})}><option value="Parini">Parini</option><option value="Beauregard">Beauregard</option></select></div>
+          <div style={{marginBottom:7}}><label style={S.lbl}>PRODOTTI</label><input style={S.inp} value={form.prodotti} onChange={e=>setForm({...form,prodotti:e.target.value})}/></div>
+          <div style={{marginBottom:9}}><label style={S.lbl}>CONSEGNA PREVISTA</label><input style={S.inp} placeholder="gg/mm" value={form.consegna} onChange={e=>setForm({...form,consegna:e.target.value})}/></div>
+          <div style={{display:"flex",gap:7}}><button style={{...S.btn(C.green,false),flex:1}} onClick={()=>{if(!form.fornitore||!form.prodotti)return;setOrdini([...ordini,{id:Date.now(),...form,data:"26/04",stato:"In Attesa",bolla:false,foto:null}]);setForm({fornitore:"",sede:"Parini",prodotti:"",consegna:""});setShow(false);}}>SALVA</button><button style={{...S.btn(C.dim,false),flex:1}} onClick={()=>setShow(false)}>ANNULLA</button></div>
+        </div>
+      )}
+      {filtrati.map(o=>(
+        <div key={o.id} style={{...S.card(""),borderColor:isRitardo(o)?"rgba(255,59,48,.3)":o.stato==="Consegnato"?"rgba(50,215,75,.2)":C.border}}>
+          <div style={{...S.row,marginBottom:5}}>
+            <div><div style={{fontSize:15,fontWeight:700}}>{o.fornitore}</div><div style={{...mono,fontSize:9,color:C.dim}}>Osp. {o.sede} · ord. {o.data}</div></div>
+            <span style={S.badge(statoC(o))}>{statoLabel(o)}</span>
+          </div>
+          <div style={{fontSize:12,color:C.text,marginBottom:7,lineHeight:1.5}}>{o.prodotti}</div>
+          <div style={{...S.row,marginBottom:o.stato!=="Consegnato"?9:0}}>
+            <div style={{fontSize:11,color:C.dim}}>Consegna: <span style={{color:isRitardo(o)?C.red:C.text,fontWeight:600,...mono}}>{o.consegna}</span></div>
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              <span style={S.badge(o.bolla?C.green:C.orange)}>{o.bolla?"Bolla ✓":"Bolla attesa"}</span>
+              {o.bolla&&o.foto&&<button style={{...S.btn(C.cyan),padding:"2px 8px",fontSize:9}} onClick={()=>setViewBolla(o.foto)}>Vedi</button>}
+            </div>
+          </div>
+          {o.stato!=="Consegnato"&&(
+            o.bolla
+              ?<button style={S.btn(C.green,true)} onClick={()=>setOrdini(ordini.map(x=>x.id===o.id?{...x,stato:"Consegnato"}:x))}>SEGNA CONSEGNATO</button>
+              :<div style={{background:"rgba(255,159,10,.05)",border:"1px solid rgba(255,159,10,.15)",borderRadius:8,padding:"7px 11px",fontSize:11,color:C.orange}}>In attesa scansione bolla dal dipendente</div>
+          )}
+        </div>
+      ))}
+      {viewBolla&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.9)",zIndex:400,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setViewBolla(null)}><img src={viewBolla} alt="bolla" style={{maxWidth:"90%",maxHeight:"90%",borderRadius:8}}/></div>}
+    </div>
+  );
+}
+ 
+// ─── MANAGER GIACENZE ─────────────────────────────────────────────────────────
+function ManagerGiacenze() {
+  const [sede,setSede]=useState("Parini");
+  const items=GIACENZE[sede]||[];
+  const oggi=new Date();
+  const isScad=(scad)=>{const [d,m]=scad.split("/").map(Number);return (new Date(2026,m-1,d)-oggi)/86400000<=3;};
+  const isBasso=(item)=>item.qta<=item.minimo*1.2;
+  const valTot=items.reduce((a,i)=>a+i.qta*i.prezzo,0);
+ 
+  const topV=[{p:"Caffè espresso",q:323,e:333.70},{p:"Cappuccino",q:103,e:132.60},{p:"Macchiato",q:91,e:95.80},{p:"Acqua frizzante 500ml",q:131,e:125.10},{p:"Panini fascia €4",q:36,e:127.68}];
+  const menoV=[{p:"Crodino 100ml",q:2},{p:"Crackers GP",q:1},{p:"Schweppes Tonica",q:5},{p:"Powerade",q:3}];
+ 
+  return (
+    <div style={S.page}>
+      <div style={S.title}>GIACENZE & DATI</div>
+      <div style={S.tabs}>{["Parini","Beauregard"].map(s=><button key={s} style={S.tab(sede===s)} onClick={()=>setSede(s)}>{s.toUpperCase()}</button>)}</div>
+ 
+      <div style={{...S.card("glow"),marginBottom:11}}>
+        <div style={{...mono,fontSize:9,color:C.dim,letterSpacing:2}}>VALORE STIMATO GIACENZA — {sede.toUpperCase()}</div>
+        <div style={{...mono,fontSize:26,color:C.cyan,marginTop:4}}>€ {valTot.toFixed(0)}</div>
+        <div style={{fontSize:11,color:C.dim,marginTop:2}}>Basato su prezzi di costo medi</div>
+      </div>
+ 
+      {items.filter(i=>isScad(i.scad)||isBasso(i)).length>0&&(
+        <div style={{...S.card("danger"),marginBottom:11}}>
+          <div style={{...mono,fontSize:9,color:C.red,marginBottom:7}}>⚠️ ATTENZIONE</div>
+          {items.filter(i=>isScad(i.scad)).map((i,idx)=><div key={idx} style={{fontSize:12,color:"#ff8a80",marginBottom:3}}>📅 {i.prod} — scade {i.scad}</div>)}
+          {items.filter(i=>isBasso(i)&&!isScad(i.scad)).map((i,idx)=><div key={idx} style={{fontSize:12,color:C.orange,marginBottom:3}}>📦 {i.prod} — scorta bassa ({i.qta}{i.unit})</div>)}
+        </div>
+      )}
+ 
+      <div style={{...mono,fontSize:9,color:C.dim,letterSpacing:2,marginBottom:8}}>PRODOTTI IN GIACENZA</div>
+      {items.map((i,idx)=>{
+        const basso=isBasso(i),scad=isScad(i.scad),col=scad?C.red:basso?C.orange:C.green;
+        return (
+          <div key={idx} style={{...S.card(""),borderColor:`${col}20`,marginBottom:6}}>
+            <div style={S.row}>
+              <div><div style={{fontSize:13,fontWeight:600}}>{i.prod}</div><div style={{fontSize:10,color:C.dim}}>{i.cat} · scad. {i.scad}</div></div>
+              <div style={{textAlign:"right"}}><div style={{...mono,fontSize:15,color:col,fontWeight:700}}>{i.qta} {i.unit}</div><div style={{fontSize:9,color:C.dim}}>min. {i.minimo}</div></div>
+            </div>
+            <div style={{height:3,background:C.bg3,borderRadius:2,marginTop:8}}><div style={{height:3,width:`${Math.min(100,i.qta/i.minimo/2*100)}%`,background:col,borderRadius:2}}/></div>
+          </div>
+        );
+      })}
+ 
+      <div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,margin:"14px 0 8px"}}>TOP VENDUTI — 24/04 PARINI</div>
+      {topV.map((v,i)=>(
+        <div key={i} style={{...S.row,padding:"6px 0",borderBottom:`1px solid ${C.border}`}}>
+          <div style={{fontSize:13}}>{v.p}</div>
+          <div style={{textAlign:"right"}}><div style={{...mono,fontSize:11,color:C.green}}>{v.q} pz</div><div style={{fontSize:10,color:C.dim}}>€ {v.e?.toFixed(2)}</div></div>
+        </div>
+      ))}
+ 
+      <div style={{...mono,fontSize:9,color:C.orange,letterSpacing:2,margin:"14px 0 8px"}}>MENO VENDUTI — da valutare</div>
+      {menoV.map((v,i)=>(
+        <div key={i} style={{...S.row,padding:"6px 0",borderBottom:`1px solid ${C.border}`}}>
+          <div style={{fontSize:13}}>{v.p}</div>
+          <div style={{...mono,fontSize:11,color:C.orange}}>{v.q} pz</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+ 
+// ─── MANAGER STAFF ────────────────────────────────────────────────────────────
+function ManagerStaff() {
+  return (
+    <div style={S.page}>
+      <div style={S.title}>STAFF</div>
+      {STAFF.map(s=>(
+        <div key={s.id} style={{...S.card(""),opacity:s.inattivo?.5:1,borderColor:s.critico?"rgba(255,59,48,.3)":s.scadenza?"rgba(255,159,10,.3)":s.manager?C.border2:C.border}}>
+          <div style={{...S.row,marginBottom:4}}>
+            <div><div style={{fontSize:14,fontWeight:700,color:s.manager?C.cyan:C.text}}>{s.nome}</div><div style={{fontSize:10,color:C.dim}}>{s.ruolo} · {s.sede} · {s.ore}h/sett</div></div>
+            <div style={{display:"flex",flexDirection:"column",gap:3,alignItems:"flex-end"}}>
+              {s.manager&&<span style={S.badge(C.cyan)}>MANAGER</span>}
+              {s.critico&&<span style={S.badge(C.red)}>CRITICO</span>}
+              {s.scadenza&&<span style={S.badge(C.orange)}>SCADENZA</span>}
+              {s.inattivo&&<span style={S.badge(C.dim)}>INATTIVO</span>}
+            </div>
+          </div>
+          {s.alert&&<div style={{fontSize:11,color:C.red}}>⚠️ {s.alert}</div>}
+          {s.compleanno&&<div style={{fontSize:11,color:C.pink,marginTop:2}}>🎂 {s.compleanno}</div>}
+          {s.cell&&<div style={{fontSize:11,color:C.cyan,marginTop:2}}>{s.cell}</div>}
+        </div>
+      ))}
+    </div>
+  );
+}
+ 
+// ─── MANAGER RICHIESTE ────────────────────────────────────────────────────────
+function ManagerRichieste({richieste, setRichieste}) {
+  return (
+    <div style={S.page}>
+      <div style={S.title}>RICHIESTE STAFF</div>
+      {richieste.length===0&&<div style={{color:C.dim,textAlign:"center",marginTop:40,...mono}}>Nessuna richiesta</div>}
+      {richieste.map(r=>(
+        <div key={r.id} style={{...S.card(""),borderColor:r.stato==="In attesa"?"rgba(255,159,10,.3)":C.border}}>
+          <div style={{...S.row,marginBottom:7}}>
+            <div><div style={{fontSize:14,fontWeight:700}}>{r.dipNome}</div><div style={{fontSize:10,color:C.dim}}>{r.tipo} · {r.data}{r.conDip?` · cambio con ${r.conDip}`:""}</div></div>
+            <span style={S.badge(r.stato==="In attesa"?C.orange:r.stato==="Approvata"?C.green:C.red)}>{r.stato}</span>
+          </div>
+          {r.nota&&<div style={{fontSize:12,color:C.dim,marginBottom:r.stato==="In attesa"?9:0}}>{r.nota}</div>}
+          {r.stato==="In attesa"&&(
+            <div style={{display:"flex",gap:7}}>
+              <button style={{...S.btn(C.green,false),flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:4}} onClick={()=>setRichieste(richieste.map(x=>x.id===r.id?{...x,stato:"Approvata"}:x))}><Icon.Chk/> APPROVA</button>
+              <button style={{...S.btn(C.red,false),flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:4}} onClick={()=>setRichieste(richieste.map(x=>x.id===r.id?{...x,stato:"Rifiutata"}:x))}><Icon.Xmark/> RIFIUTA</button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+ 
+// ─── DIPENDENTE HOME ──────────────────────────────────────────────────────────
+function DipendenteHome({dipId, nome, onNav, richieste}) {
+  const sett=SETTIMANE_INIT[0];
+  const tuttiT=[...sett.Parini,...sett.Beauregard];
+  const oggiT=tuttiT.find(t=>t.dipId===dipId&&t.g===5);
+  const mieiT=tuttiT.filter(t=>t.dipId===dipId);
+  const pending=richieste.filter(r=>r.dipNome===nome&&r.stato==="In attesa").length;
+ 
+  return (
+    <div style={S.page}>
+      <div style={{marginBottom:14}}>
+        <div style={{...mono,fontSize:20,color:C.cyan}}>CIAO, {nome.toUpperCase()}</div>
+        <div style={{fontSize:10,color:C.dim,marginTop:2}}>Sett. {sett.num} · {sett.dal} → {sett.al}</div>
+      </div>
+      <div style={{...S.card("glow"),marginBottom:9}}>
+        <div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:7}}>IL TUO TURNO OGGI</div>
+        {oggiT?(<><div style={{...mono,fontSize:30,fontWeight:700}}>{oggiT.in} – {oggiT.fi}</div><div style={{fontSize:11,color:C.dim,marginTop:3}}>{oggiT.tipo}</div></>):<div style={{fontSize:16,color:C.dim}}>Riposo oggi 😴</div>}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7,marginBottom:9}}>
+        {[
+          {label:"I Miei Turni",icon:<Icon.Cal/>,color:C.cyan,nav:"turni"},
+          {label:"Richieste",icon:<Icon.Msg/>,color:C.orange,nav:"richieste",badge:pending},
+          {label:"Bolla",icon:<Icon.Scan/>,color:C.green,nav:"scansione"},
+        ].map(b=>(
+          <div key={b.label} style={{...S.card(""),textAlign:"center",cursor:"pointer",position:"relative",padding:"12px 6px"}} onClick={()=>onNav(b.nav)}>
+            {b.badge>0&&<div style={{position:"absolute",top:6,right:6,width:15,height:15,borderRadius:"50%",background:C.orange,color:"#000",fontSize:9,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center"}}>{b.badge}</div>}
+            <div style={{color:b.color,marginBottom:4,display:"flex",justifyContent:"center"}}>{b.icon}</div>
+            <div style={{...mono,fontSize:9,color:b.color}}>{b.label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={S.card("")}>
+        <div style={{...S.row,marginBottom:9}}>
+          <div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2}}>PROSSIMI TURNI</div>
+          <button style={{...S.btn(C.cyan),padding:"2px 8px",fontSize:9}} onClick={()=>onNav("turni")}>Tutti →</button>
+        </div>
+        {mieiT.length===0?<div style={{color:C.dim,fontSize:12}}>Nessun turno questa settimana</div>:
+          mieiT.slice(0,4).map((t,i)=>(
+            <div key={i} style={{...S.row,padding:"6px 0",borderBottom:`1px solid ${C.border}`}}>
+              <div><div style={{fontSize:12}}>{sett.giorni[t.g]}</div><div style={{fontSize:10,color:TIPICOLOR[t.tipo]||C.dim}}>{t.tipo}</div></div>
+              <div style={{...mono,color:C.cyan,fontSize:11}}>{t.in}–{t.fi}</div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  );
+}
+ 
+// ─── DIPENDENTE RICHIESTE ─────────────────────────────────────────────────────
+function DipendenteRichieste({nome, richieste, setRichieste, settimane}) {
+  const [tipo,setTipo]=useState("Giorno libero");
+  const [dIdx,setDIdx]=useState(0);
+  const [conDip,setConDip]=useState("");
+  const sett=settimane[0];
+  const mie=richieste.filter(r=>r.dipNome===nome);
+ 
+  const invia=()=>{
+    setRichieste(p=>[...p,{id:Date.now(),dipNome:nome,tipo,data:sett.giorni[dIdx],stato:"In attesa",nota:"",conDip:tipo==="Cambio turno"?STAFF.find(s=>s.id===parseInt(conDip))?.nome||"":null}]);
+  };
+ 
+  return (
+    <div style={S.page}>
+      <div style={S.title}>RICHIESTE</div>
+      <div style={{...S.card("glow"),marginBottom:13}}>
+        <div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:11}}>NUOVA RICHIESTA</div>
+        <div style={{marginBottom:9}}>
+          <label style={S.lbl}>TIPO</label>
+          <div style={{display:"flex",gap:7}}>
+            {["Giorno libero","Cambio turno","Permesso"].map(t=>(
+              <button key={t} style={{flex:1,padding:"7px 3px",borderRadius:8,border:`1px solid ${tipo===t?C.cyan:C.border}`,background:tipo===t?"rgba(0,229,255,.09)":"transparent",color:tipo===t?C.cyan:C.dim,fontSize:9,cursor:"pointer",...mono}} onClick={()=>setTipo(t)}>{t}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{marginBottom:9}}>
+          <label style={S.lbl}>DATA</label>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <button onClick={()=>setDIdx(Math.max(0,dIdx-1))} style={{background:"transparent",border:`1px solid ${C.border}`,borderRadius:7,color:C.dim,padding:"6px 10px",cursor:"pointer"}}><Icon.ChevL/></button>
+            <div style={{flex:1,textAlign:"center",...mono,fontSize:13,color:C.text}}>{sett.giorni[dIdx]}</div>
+            <button onClick={()=>setDIdx(Math.min(sett.giorni.length-1,dIdx+1))} style={{background:"transparent",border:`1px solid ${C.border}`,borderRadius:7,color:C.dim,padding:"6px 10px",cursor:"pointer"}}><Icon.ChevR/></button>
+          </div>
+        </div>
+        {tipo==="Cambio turno"&&(
+          <div style={{marginBottom:9}}>
+            <label style={S.lbl}>CAMBIO CON</label>
+            <select style={S.inp} value={conDip} onChange={e=>setConDip(e.target.value)}>
+              <option value="">Seleziona collega...</option>
+              {STAFF.filter(s=>!s.inattivo&&!s.manager&&s.nome!==nome).map(s=><option key={s.id} value={s.id}>{s.nome}</option>)}
+            </select>
+          </div>
+        )}
+        <button style={S.btnP} onClick={invia}>INVIA RICHIESTA</button>
+      </div>
+      {mie.length>0&&(
+        <>
+          <div style={{...mono,fontSize:9,color:C.dim,letterSpacing:2,marginBottom:7}}>LE TUE RICHIESTE</div>
+          {mie.map(r=>(
+            <div key={r.id} style={{...S.card(""),display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div><div style={{fontSize:13,fontWeight:600}}>{r.tipo}</div><div style={{fontSize:10,color:C.dim}}>{r.data}{r.conDip?` · con ${r.conDip}`:""}</div></div>
+              <span style={S.badge(r.stato==="In attesa"?C.orange:r.stato==="Approvata"?C.green:C.red)}>{r.stato}</span>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+ 
+// ─── DIPENDENTE SCANSIONE ─────────────────────────────────────────────────────
+function DipendenteScansione({ordini, setOrdini}) {
+  const [fase,setFase]=useState("idle");
+  const [foto,setFoto]=useState([]);
+  const [loc,setLoc]=useState(null);
+  const [ordineId,setOrdineId]=useState("");
+  const fileRef=useRef(null);
+ 
+  useEffect(()=>{
+    if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{setLoc({lat:p.coords.latitude.toFixed(4),lng:p.coords.longitude.toFixed(4),sede:p.coords.latitude>45.73?"Beauregard":"Parini"});},()=>setLoc({sede:"Non rilevata"}));
+  },[]);
+ 
+  const handleFile=(e)=>{const urls=Array.from(e.target.files).map(f=>URL.createObjectURL(f));setFoto(p=>[...p,...urls]);setFase("confirm");};
+ 
+  const invia=()=>{
+    if(!ordineId)return;
+    setOrdini(prev=>prev.map(o=>o.id===parseInt(ordineId)?{...o,bolla:true,foto:foto[0]||null}:o));
+    setFase("done");
+  };
+ 
+  if(fase==="done")return(
+    <div style={{...S.page,textAlign:"center",paddingTop:50}}>
+      <div style={{width:65,height:65,borderRadius:"50%",background:"rgba(50,215,75,.1)",border:`2px solid ${C.green}`,margin:"0 auto 18px",display:"flex",alignItems:"center",justifyContent:"center"}}><Icon.Chk/></div>
+      <div style={{...mono,color:C.green,fontSize:15,letterSpacing:2,marginBottom:9}}>BOLLA CERTIFICATA</div>
+      <div style={{color:C.dim,fontSize:12,marginBottom:14,lineHeight:1.8}}>Inviata al manager · giacenza aggiornata</div>
+      <div style={{...S.card(""),fontSize:11,color:C.dim,...mono,lineHeight:2}}>Sede: {loc?.sede||"Parini"}<br/>{new Date().toLocaleTimeString("it")} · {new Date().toLocaleDateString("it")}</div>
+      <button style={{...S.btnP,marginTop:14}} onClick={()=>{setFase("idle");setFoto([]);setOrdineId("");}}>NUOVA SCANSIONE</button>
+    </div>
+  );
+ 
+  return (
+    <div style={S.page}>
+      <div style={S.title}>SCANSIONE BOLLA</div>
+      {loc&&<div style={{...S.card("success"),marginBottom:9,fontSize:12,color:C.green}}>Sede rilevata: <strong>{loc.sede}</strong></div>}
+      <div style={{...S.card(""),textAlign:"center",minHeight:140,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",borderStyle:"dashed",borderColor:foto.length?C.green:C.border,marginBottom:9}}>
+        {foto.length===0?(<><div style={{color:C.dim,marginBottom:7}}><Icon.Scan/></div><div style={{color:C.dim,fontSize:13}}>Scatta o carica la bolla</div><div style={{fontSize:10,color:C.dim,marginTop:3}}>Puoi aggiungere più pagine</div></>):(
+          <><div style={{display:"flex",gap:7,flexWrap:"wrap",justifyContent:"center",marginBottom:7}}>{foto.map((f,i)=><img key={i} src={f} alt="" style={{width:60,height:80,objectFit:"cover",borderRadius:5,border:`1px solid ${C.green}`}}/>)}</div><div style={{...mono,color:C.green,fontSize:11}}>{foto.length} pag. acquisita{foto.length>1?"e":""}</div></>
+        )}
+      </div>
+      <input ref={fileRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={handleFile}/>
+      <div style={{display:"flex",gap:7,marginBottom:foto.length?9:0}}>
+        <button style={{...S.btn(C.cyan,false),flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:5}} onClick={()=>{fileRef.current.setAttribute("capture","camera");fileRef.current.click();}}><Icon.Cam/> Foto</button>
+        <button style={{...S.btn(C.cyan,false),flex:1}} onClick={()=>{fileRef.current.removeAttribute("capture");fileRef.current.click();}}>Carica File</button>
+      </div>
+      {foto.length>0&&(
+        <>
+          {foto.length<5&&<button style={{...S.btn(C.dim,true),marginBottom:9}} onClick={()=>{fileRef.current.removeAttribute("capture");fileRef.current.click();}}>+ Aggiungi pagina</button>}
+          <div style={S.card("glow")}>
+            <div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:9}}>ASSOCIA ORDINE</div>
+            <select style={{...S.inp,marginBottom:9}} value={ordineId} onChange={e=>setOrdineId(e.target.value)}>
+              <option value="">Seleziona ordine...</option>
+              {ordini.filter(o=>o.stato!=="Consegnato").map(o=><option key={o.id} value={o.id}>{o.fornitore} — {o.sede}</option>)}
+            </select>
+            <div style={{background:"rgba(50,215,75,.04)",border:"1px solid rgba(50,215,75,.12)",borderRadius:7,padding:"7px 11px",marginBottom:11,...mono,fontSize:10,color:"rgba(50,215,75,.7)",lineHeight:1.8}}>Posizione, data e ora salvati automaticamente</div>
+            <button style={{...S.btnP,background:"rgba(50,215,75,.09)",borderColor:C.green,color:C.green,opacity:ordineId?1:.4}} onClick={invia} disabled={!ordineId}>CONFERMA CONSEGNA</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+ 
+// ─── DIPENDENTE CONTROLLI ─────────────────────────────────────────────────────
+function DipendenteControlli() {
+  const [pinState,setPinState]=useState("locked");
+  const [pin,setPin]=useState("");
+  const [errPin,setErrPin]=useState("");
+  const [countdown,setCountdown]=useState(0);
+ 
+  useEffect(()=>{
+    if(countdown>0){const t=setTimeout(()=>setCountdown(c=>c-1),1000);return()=>clearTimeout(t);}
+    if(countdown===0&&pinState==="unlocked"){setPinState("locked");setPin("");}
+  },[countdown,pinState]);
+ 
+  const tryPin=()=>{
+    if(pin==="1234"){setPinState("unlocked");setCountdown(240);setErrPin("");}
+    else{setErrPin("PIN non valido — chiedi a Yannick");setPin("");}
+  };
+ 
+  if(pinState==="unlocked")return(
+    <div style={S.page}>
+      <div style={{...S.row,marginBottom:13}}>
+        <div style={S.title}>AREA CONTROLLI</div>
+        <div style={{...mono,color:countdown<60?C.red:C.orange,fontSize:13}}>{Math.floor(countdown/60)}:{(countdown%60).toString().padStart(2,"0")}</div>
+      </div>
+      <div style={{...S.card(""),background:"rgba(255,159,10,.05)",borderColor:"rgba(255,159,10,.2)",marginBottom:13,...mono,fontSize:10,color:C.orange}}>ACCESSO TEMPORANEO — si chiude automaticamente</div>
+      {[
+        {t:"TEMPERATURE FRIGO",b:"Frigo alimenti: 0–4°C — compilare ogni mattina\nCongelatori: max –18°C\nSe temp. alta: abbassare regolazione\nSe persiste: chiamare tecnico frigorista"},
+        {t:"SANIFICAZIONE",b:"Attrezzature e piani lavoro: QUOTIDIANO\nLocali produzione e pavimenti: QUOTIDIANO\nServizi igienici: QUOTIDIANO\nFrigoriferi e forni: SETTIMANALE\nCongelatori: MENSILE"},
+        {t:"IGIENE PERSONALE",b:"Vietati: anelli, bracciali, collane, orecchini, Smartwatch\nConsentita SOLO fede nuziale\nCapelli: completamente raccolti\nGuanti: SOLO per sbarazzo, ferite, pulizia bagni\nLavaggio mani: frequente e obbligatorio"},
+        {t:"TMC — CONSERVAZIONE",b:"Salumi stagionati (crudo, speck): 7 giorni\nSalumi cotti (mortadella, arrosto): 5 giorni\nFormaggi freschi (mozzarella, stracchino): 3 giorni\nFormaggi stagionati (edamer, asiago): 7 giorni\nFrutta/verdura lavata: 2 giorni\nSalse in barattolo: 30 giorni"},
+        {t:"ATTESTATI",b:"Chiedi a Yarvick (orb in alto):\n'Attestato HACCP Matteo Anile'\n'Attestato sicurezza Jessica Veneruso'\n'Attestato antincendio Amine Bouchrit'\n\nYarvick mostra il documento direttamente."},
+      ].map((s,i)=>(
+        <div key={i} style={S.card("")}>
+          <div style={{...mono,fontSize:10,color:C.cyan,letterSpacing:1,marginBottom:7}}>{s.t}</div>
+          <div style={{fontSize:12,color:C.text,lineHeight:1.8,whiteSpace:"pre-line"}}>{s.b}</div>
+        </div>
+      ))}
+    </div>
+  );
+ 
+  return(
+    <div style={{...S.page,textAlign:"center",paddingTop:50}}>
+      <div style={{width:60,height:60,borderRadius:"50%",background:C.cyanB,border:`1px solid ${C.border2}`,margin:"0 auto 18px",display:"flex",alignItems:"center",justifyContent:"center",color:C.cyan}}><Icon.Lock/></div>
+      <div style={{...mono,fontSize:14,color:C.cyan,letterSpacing:3,marginBottom:7}}>AREA PROTETTA</div>
+      <div style={{color:C.dim,fontSize:12,marginBottom:24,lineHeight:1.7}}>Chiedi il PIN a Yannick.<br/>Accesso valido 4 minuti.</div>
+      <div style={{maxWidth:210,margin:"0 auto"}}>
+        <label style={S.lbl}>PIN A 4 CIFRE</label>
+        <input style={{...S.inp,textAlign:"center",letterSpacing:10,fontSize:20,marginBottom:9}} type="password" maxLength={4} placeholder="••••" value={pin} onChange={e=>setPin(e.target.value)} onKeyDown={e=>e.key==="Enter"&&tryPin()}/>
+        {errPin&&<div style={{color:C.red,fontSize:10,marginBottom:7,...mono}}>{errPin}</div>}
+        <button style={S.btnP} onClick={tryPin}>SBLOCCA</button>
+      </div>
+    </div>
+  );
+}
+ 
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+export default function App() {
+  const [user,setUser]=useState(null);
+  const [page,setPage]=useState("home");
+  const [richieste,setRichieste]=useState(RICHIESTE_INIT);
+  const [ordini,setOrdini]=useState(ORDINI_INIT);
+  const [settimane,setSettimane]=useState(SETTIMANE_INIT);
+ 
+  const yv=useYarvick(user?.role||"",user?.nome||"",richieste,setRichieste);
+ 
+  if(!user)return <Login onLogin={(role,nome,dipId)=>{setUser({role,nome,dipId});setPage("home");}}/>;
+ 
+  const isM=user.role==="manager";
+  const richAttesa=richieste.filter(r=>r.stato==="In attesa").length;
+ 
+  const manNav=[
+    {id:"home",    label:"HOME",   icon:<Icon.Home/>},
+    {id:"turni",   label:"TURNI",  icon:<Icon.Cal/>},
+    {id:"agenda",  label:"AGENDA", icon:<Icon.Clip/>},
+    {id:"ordini",  label:"ORDINI", icon:<Icon.Box/>},
+    {id:"giacenze",label:"DATI",   icon:<Icon.Chart/>},
+  ];
+  const dipNav=[
+    {id:"home",      label:"HOME",      icon:<Icon.Home/>},
+    {id:"turni",     label:"TURNI",     icon:<Icon.Cal/>},
+    {id:"richieste", label:"RICHIESTE", icon:<Icon.Msg/>},
+    {id:"scansione", label:"BOLLA",     icon:<Icon.Scan/>},
+    {id:"controlli", label:"CONTROLLI", icon:<Icon.Shield/>},
+  ];
+  const navItems=isM?manNav:dipNav;
+ 
+  const renderPage=()=>{
+    if(isM){switch(page){
+      case"home":      return <ManagerHome onNav={setPage} richieste={richieste} ordini={ordini}/>;
+      case"turni":     return <TurniGrid dipId={user.dipId} isManager={true} settimane={settimane} setSett={setSettimane}/>;
+      case"agenda":    return <ManagerAgenda/>;
+      case"ordini":    return <ManagerOrdini ordini={ordini} setOrdini={setOrdini}/>;
+      case"giacenze":  return <ManagerGiacenze/>;
+      case"staff":     return <ManagerStaff/>;
+      case"richieste": return <ManagerRichieste richieste={richieste} setRichieste={setRichieste}/>;
+      default:         return <ManagerHome onNav={setPage} richieste={richieste} ordini={ordini}/>;
+    }}else{switch(page){
+      case"home":      return <DipendenteHome dipId={user.dipId} nome={user.nome} onNav={setPage} richieste={richieste}/>;
+      case"turni":     return <TurniGrid dipId={user.dipId} isManager={false} settimane={settimane} setSett={setSettimane}/>;
+      case"richieste": return <DipendenteRichieste nome={user.nome} richieste={richieste} setRichieste={setRichieste} settimane={settimane}/>;
+      case"scansione": return <DipendenteScansione ordini={ordini} setOrdini={setOrdini}/>;
+      case"controlli": return <DipendenteControlli/>;
+      default:         return <DipendenteHome dipId={user.dipId} nome={user.nome} onNav={setPage} richieste={richieste}/>;
+    }}
+  };
+ 
+  return(
+    <div style={{background:C.bg,minHeight:"100vh",fontFamily:"'Rajdhani',sans-serif",maxWidth:480,margin:"0 auto"}}>
+      <style>{GCSS}</style>
+      <div style={S.header}>
+        <div style={{display:"flex",alignItems:"center",gap:9}}>
+          <YCKOrb size={34} state={yv.orbState} onClick={()=>yv.setShowChat(true)}/>
+          <div>
+            <div style={{...mono,fontSize:18,color:C.cyan,letterSpacing:4,textShadow:`0 0 10px ${C.cyan}`}}>YARVICK</div>
+            <div style={{fontSize:9,color:C.dim,letterSpacing:2}}>{isM?"MANAGER · SIRIO BAR":`${user.nome.toUpperCase()} · DIPENDENTE`}</div>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:5}}>
+          {isM&&page!=="staff"&&<button style={{background:C.cyanB,border:`1px solid ${C.border}`,borderRadius:7,color:C.dim,padding:"5px 9px",cursor:"pointer",display:"flex",alignItems:"center"}} onClick={()=>setPage("staff")}><Icon.Staff/></button>}
+          {isM&&richAttesa>0&&<button style={{background:"rgba(255,159,10,.09)",border:"1px solid rgba(255,159,10,.3)",borderRadius:7,color:C.orange,padding:"5px 9px",cursor:"pointer",fontSize:11,...mono,fontWeight:700}} onClick={()=>setPage("richieste")}>{richAttesa}</button>}
+          <button style={{background:"transparent",border:`1px solid ${C.border}`,borderRadius:7,color:C.dim,padding:"5px 9px",cursor:"pointer",display:"flex",alignItems:"center"}} onClick={()=>{setUser(null);setPage("home");}}><Icon.Out/></button>
+        </div>
+      </div>
+ 
+      {renderPage()}
+ 
+      <nav style={S.nav}>
+        {navItems.map(n=>{
+          const active=page===n.id;
+          const badge=n.id==="richieste"&&!isM&&richieste.filter(r=>r.dipNome===user.nome&&r.stato==="In attesa").length>0;
+          return(
+            <button key={n.id} style={S.navBtn(active)} onClick={()=>setPage(n.id)}>
+              {badge&&<div style={{position:"absolute",top:2,right:8,width:7,height:7,borderRadius:"50%",background:C.orange}}/>}
+              <div style={{filter:active?`drop-shadow(0 0 5px ${C.cyan})`:"none"}}>{n.icon}</div>
+              <div style={S.navLabel}>{n.label}</div>
+              {active&&<div style={{width:16,height:2,background:C.cyan,borderRadius:1,marginTop:2,boxShadow:`0 0 5px ${C.cyan}`}}/>}
+            </button>
+          );
+        })}
+      </nav>
+ 
+      {yv.showChat&&<YarvickOverlay yv={yv} onClose={()=>yv.setShowChat(false)}/>}
+    </div>
+  );
+}
+ 
