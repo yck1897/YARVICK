@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>YARVICK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#05090e;color:#daeef8;font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-track{background:#05090e}::-webkit-scrollbar-thumb{background:#00e5ff30}
+select option{background:#0a1119}
+input::placeholder,textarea::placeholder{color:#2a4a5a}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}}
+@keyframes spinA{to{transform:rotate(360deg)}}
+@keyframes spinB{to{transform:rotate(-360deg)}}
+@keyframes spinC{0%{transform:rotate(0deg)}100%{transform:rotate(540deg)}}
+@keyframes glowP{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes thinking{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const Icon = {
+Home: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>,
+Cal: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
+Clip: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>,
+Box: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 10V6a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 6v4"/><path d="M3 10l9 5 9-5M12 22V12"/></svg>,
+Scan: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10"/></svg>,
+Msg: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+Shield: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+Chart: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>,
+Staff: ()=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,
+Out: ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>,
+Mic: ()=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>,
+Send: ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>,
+Lock: ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
+Cam: ()=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+Chk: ()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>,
+Xmark: ()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>,
+Plus: ()=><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>,
+ChevL: ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>,
+ChevR: ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>,
+};
+
+const C = {
+bg:”#05090e”, bg1:”#0a1119”, bg2:”#0f1822”, bg3:”#141f2c”,
+cyan:”#00e5ff”, cyanA:“rgba(0,229,255,0.12)”, cyanB:“rgba(0,229,255,0.06)”,
+border:“rgba(0,229,255,0.1)”, border2:“rgba(0,229,255,0.28)”,
+orange:”#ff9f0a”, red:”#ff3b30”, green:”#32d74b”, pink:”#ff6b9d”, gold:”#ffd060”,
+text:”#daeef8”, dim:”#4a7a94”,
+};
+
+const STAFF = [
+{id:1, nome:“Yannick Gbedey”,    ruolo:“Responsabile”, sede:“Entrambe”,    ore:40, manager:true, cell:”+39 349 6447931”, email:“manager@yarvick.it”, nato:“19/01/1994”},
+{id:2, nome:“Matteo Anile”,      ruolo:“Vice (Fisico)”, sede:“Jolly”,       ore:28, compleanno:“🎂 Comp. 27 Giu”, cell:”+39 349 4363746”, email:“anilematteo@gmail.com”, nato:“27/06/1995”},
+{id:3, nome:“Jessica Veneruso”,  ruolo:“Vice (Org)”,   sede:“Parini”,       ore:32, alert:“⚠️ MAI con Adriana De Luca”, cell:”+39 334 1067439”, email:“Darksoul489@live.it”, nato:“07/09/1989”},
+{id:4, nome:“Adriana Macaluso”,  ruolo:“Cucina”,       sede:“Beauregard”,   ore:30, cell:”+39 340 2469714”, nato:“03/06/1977”},
+{id:5, nome:“Stefania Ferraioli”,ruolo:“Cucina”,       sede:“Beauregard”,   ore:24, compleanno:“🎂 Comp. 1 Ago”, cell:”+39 320 6817598”, email:“Ferrastefania12@gmail.com”, nato:“01/08/1984”},
+{id:6, nome:“Adriana De Luca”,   ruolo:“Operativo”,    sede:“Parini”,       ore:24, critico:“⚠️ MAI con Jessica Veneruso”, cell:”+39 347 4081336”, email:“delucaadriana66@gmail.com”, nato:“12/08/1966”},
+{id:7, nome:“Cinzia Pinna”,      ruolo:“Operativo”,    sede:“Parini”,       ore:24, cell:”+39 342 3954479”, email:“cinziapinnafabio@gmail.com”, nato:“11/11/1975”},
+{id:8, nome:“Carmela La Spina”,  ruolo:“Operativo”,    sede:“Beauregard”,   ore:24, alert:“⚠️ SEMPRE con Matteo o Amine al Beauregard”, cell:”+39 349 5281388”, email:“carmenlasp1@gmail.com”, nato:“21/03/1960”},
+{id:9, nome:“Amine Bouchrit”,    ruolo:“Operativo”,    sede:“Jolly”,        ore:30, scadenza:“⚠️ Contratto scade 30/04/2026”, cell:”+39 379 1211800”, email:“hijabiandmore94@gmail.com”, nato:“16/01/1994”},
+{id:10,nome:“Simone Sistilli”,   ruolo:“Operativo”,    sede:“Parini”,       ore:30, cell:”+39 340 2883453”, email:“sistillisimone96@gmail.com”, nato:“30/03/1996”},
+{id:11,nome:“Claudia Padovani”,  ruolo:“Inattivo”,     sede:”—”,            ore:28, inattivo:true, cell:”+39 338 7674907”, email:“Claudia.padovani68@libero.it”, nato:“08/08/1968”},
+];
+
+const TIPI_TURNO = [“Matt.”,“Pom.”,“Cucina”,“Resp.”,“Inventario”,“Corso”,“Apertura”];
+const TIPICOLOR = {“Cucina”:C.orange,“Resp.”:C.cyan,“Matt.”:C.green,“Pom.”:C.pink,“Inventario”:C.gold,“Corso”:C.gold,“Apertura”:C.green};
+
+const SETTIMANE_INIT = [
+{
+num:18, dal:“27/04”, al:“03/05”,
+giorni:[“Lun 27/4”,“Mar 28/4”,“Mer 29/4”,“Gio 30/4”,“Ven 1/5”,“Sab 2/5”,“Dom 3/5”],
+Parini:[
+{dipId:1,g:0,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:0,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:3,g:0,in:“16:00”,fi:“21:00”,tipo:“Pom.”},{dipId:10,g:0,in:“07:30”,fi:“15:15”,tipo:“Matt.”},
+{dipId:1,g:1,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:1,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:9,g:1,in:“11:30”,fi:“16:00”,tipo:“Matt.”},{dipId:3,g:1,in:“16:00”,fi:“21:00”,tipo:“Pom.”},
+{dipId:10,g:1,in:“07:00”,fi:“11:00”,tipo:“Matt.”},
+{dipId:1,g:2,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:2,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:9,g:2,in:“07:30”,fi:“15:15”,tipo:“Matt.”},{dipId:6,g:2,in:“11:00”,fi:“16:00”,tipo:“Pom.”},
+{dipId:3,g:2,in:“16:00”,fi:“21:00”,tipo:“Pom.”},{dipId:10,g:2,in:“07:00”,fi:“11:00”,tipo:“Matt.”},
+{dipId:1,g:3,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:3,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:9,g:3,in:“07:30”,fi:“15:15”,tipo:“Matt.”},{dipId:3,g:3,in:“08:00”,fi:“14:00”,tipo:“Matt.”},
+{dipId:10,g:3,in:“15:00”,fi:“21:00”,tipo:“Pom.”},
+{dipId:1,g:4,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:4,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:3,g:4,in:“08:00”,fi:“14:00”,tipo:“Inventario”},{dipId:10,g:4,in:“08:30”,fi:“12:30”,tipo:“Matt.”},
+{dipId:4,g:5,in:“06:00”,fi:“11:00”,tipo:“Cucina”},{dipId:3,g:5,in:“09:00”,fi:“14:00”,tipo:“Matt.”},
+{dipId:9,g:6,in:“09:00”,fi:“14:00”,tipo:“Matt.”},{dipId:10,g:6,in:“06:00”,fi:“10:30”,tipo:“Matt.”},
+{dipId:3,g:6,in:“06:00”,fi:“10:30”,tipo:“Matt.”},
+],
+Beauregard:[
+{dipId:2,g:0,in:“13:00”,fi:“17:30”,tipo:“Pom.”},{dipId:5,g:0,in:“05:30”,fi:“10:30”,tipo:“Cucina”},
+{dipId:8,g:0,in:“08:00”,fi:“13:30”,tipo:“Matt.”},
+{dipId:2,g:1,in:“07:00”,fi:“13:45”,tipo:“Matt.”},{dipId:5,g:1,in:“05:30”,fi:“10:30”,tipo:“Cucina”},
+{dipId:8,g:1,in:“13:00”,fi:“17:30”,tipo:“Pom.”},
+{dipId:2,g:2,in:“13:30”,fi:“17:30”,tipo:“Pom.”},{dipId:5,g:2,in:“05:30”,fi:“10:30”,tipo:“Cucina”},
+{dipId:8,g:2,in:“08:00”,fi:“13:30”,tipo:“Matt.”},
+{dipId:5,g:3,in:“05:30”,fi:“10:30”,tipo:“Cucina”},{dipId:8,g:3,in:“13:30”,fi:“17:30”,tipo:“Pom.”},
+{dipId:6,g:3,in:“08:00”,fi:“14:00”,tipo:“Matt.”},
+{dipId:9,g:4,in:“12:00”,fi:“17:30”,tipo:“Pom.”},{dipId:5,g:4,in:“05:30”,fi:“10:30”,tipo:“Cucina”},
+{dipId:8,g:4,in:“06:00”,fi:“12:00”,tipo:“Matt.”},
+{dipId:5,g:5,in:“06:00”,fi:“10:30”,tipo:“Cucina”},{dipId:8,g:5,in:“10:30”,fi:“14:30”,tipo:“Matt.”},
+],
+},
+{
+num:17, dal:“20/04”, al:“26/04”,
+giorni:[“Lun 20/4”,“Mar 21/4”,“Mer 22/4”,“Gio 23/4”,“Ven 24/4”,“Sab 25/4”,“Dom 26/4”],
+Parini:[
+{dipId:1,g:0,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:0,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:3,g:0,in:“15:00”,fi:“21:00”,tipo:“Pom.”},{dipId:10,g:0,in:“07:30”,fi:“15:15”,tipo:“Matt.”},
+{dipId:1,g:1,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:1,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:9,g:1,in:“07:30”,fi:“15:15”,tipo:“Matt.”},{dipId:3,g:1,in:“15:00”,fi:“21:00”,tipo:“Pom.”},
+{dipId:1,g:2,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:2,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:3,g:2,in:“11:00”,fi:“15:00”,tipo:“Matt.”},
+{dipId:1,g:3,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:3,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:3,g:3,in:“07:30”,fi:“14:00”,tipo:“Matt.”},{dipId:10,g:3,in:“07:00”,fi:“11:00”,tipo:“Matt.”},
+{dipId:1,g:4,in:“09:00”,fi:“17:00”,tipo:“Resp.”},{dipId:4,g:4,in:“05:00”,fi:“10:30”,tipo:“Cucina”},
+{dipId:3,g:4,in:“07:00”,fi:“11:00”,tipo:“Inventario”},
+{dipId:4,g:5,in:“06:00”,fi:“08:30”,tipo:“Cucina”},
+{dipId:3,g:6,in:“06:00”,fi:“10:30”,tipo:“Matt.”},{dipId:10,g:6,in:“10:30”,fi:“16:30”,tipo:“Pom.”},
+],
+Beauregard:[
+{dipId:2,g:0,in:“08:00”,fi:“13:30”,tipo:“Matt.”},{dipId:5,g:0,in:“05:30”,fi:“11:30”,tipo:“Cucina”},
+{dipId:8,g:0,in:“13:00”,fi:“17:30”,tipo:“Pom.”},
+{dipId:2,g:1,in:“07:00”,fi:“11:00”,tipo:“Matt.”},{dipId:5,g:1,in:“05:30”,fi:“10:30”,tipo:“Cucina”},
+{dipId:8,g:1,in:“13:00”,fi:“17:30”,tipo:“Pom.”},
+{dipId:2,g:2,in:“13:00”,fi:“17:30”,tipo:“Pom.”},{dipId:5,g:2,in:“05:30”,fi:“10:30”,tipo:“Cucina”},
+{dipId:8,g:2,in:“08:00”,fi:“13:30”,tipo:“Matt.”},
+{dipId:9,g:3,in:“13:00”,fi:“17:30”,tipo:“Pom.”},{dipId:5,g:3,in:“05:30”,fi:“10:30”,tipo:“Cucina”},
+{dipId:8,g:3,in:“08:00”,fi:“09:00”,tipo:“Matt.”},
+{dipId:9,g:4,in:“08:00”,fi:“13:30”,tipo:“Matt.”},{dipId:5,g:4,in:“05:30”,fi:“10:30”,tipo:“Cucina”},
+{dipId:8,g:4,in:“13:00”,fi:“17:30”,tipo:“Pom.”},
+{dipId:5,g:5,in:“06:00”,fi:“10:30”,tipo:“Cucina”},{dipId:8,g:5,in:“10:30”,fi:“14:30”,tipo:“Matt.”},
+],
+},
+];
+
+const ORDINI_INIT = [
+{id:1,fornitore:“San Benedetto”,sede:“Parini”,    data:“23/04”,consegna:“26/04”,prodotti:“Acqua nat. 1.5L x8, Acqua frizz. 1.5L x4”,stato:“In attesa”,bolla:false},
+{id:2,fornitore:“Coca-Cola”,    sede:“Parini”,    data:“13/04”,consegna:“17/04”,prodotti:“CC 33cl x48, Fanta x24, Sprite x12”,stato:“In attesa”,bolla:false},
+{id:3,fornitore:“Lavazza”,      sede:“Beauregard”,data:“15/04”,consegna:“20/04”,prodotti:“Caffè grani 1kg x12”,stato:“In attesa”,bolla:false},
+{id:4,fornitore:“Ferrero”,      sede:“Parini”,    data:“17/04”,consegna:“22/04”,prodotti:“Cornetti x100, Brioche x50”,stato:“In attesa”,bolla:false},
+{id:5,fornitore:“Gimoka”,       sede:“Beauregard”,data:“20/04”,consegna:“24/04”,prodotti:“Caffè espresso kg x6”,stato:“In attesa”,bolla:false},
+];
+
+const AGENDA_INIT = [
+{id:1,data:“30/04”,tipo:“scadenza”,  testo:“Contratto Amine Bouchrit — VERIFICA RINNOVO”,urgente:true},
+{id:2,data:“28/04”,tipo:“ordine”,    testo:“Coca-Cola Parini: in ritardo dal 17/04 — bolla mancante”,urgente:true},
+{id:3,data:“28/04”,tipo:“ordine”,    testo:“Lavazza Beauregard: in ritardo dal 20/04”,urgente:true},
+{id:4,data:“27/06”,tipo:“compleanno”,testo:“Compleanno Matteo Anile”,urgente:false},
+{id:5,data:“01/08”,tipo:“compleanno”,testo:“Compleanno Stefania Ferraioli”,urgente:false},
+{id:6,data:“05/05”,tipo:“visita”,    testo:“Visita medica Carmela La Spina”,urgente:false},
+];
+
+const RICHIESTE_INIT = [
+{id:1,dipNome:“Jessica Veneruso”,tipo:“Giorno libero”,data:“23/04”,stato:“In attesa”,nota:“Impegno personale”},
+{id:2,dipNome:“Amine Bouchrit”,  tipo:“Cambio turno”, data:“21/04”,stato:“In attesa”,nota:“Cambio con Matteo”},
+];
+
+const GIACENZE = {
+Parini:[
+{prod:“Caffè grani Gimoka”,   cat:“Caffetteria”,qta:6,  unit:“kg”,  minimo:3, prezzo:18,  scad:“15/06/2026”},
+{prod:“Acqua nat. 500ml”,     cat:“Bevande”,    qta:120,unit:“bott”,minimo:48,prezzo:0.35,scad:“30/09/2026”},
+{prod:“Acqua frizzante 500ml”,cat:“Bevande”,    qta:80, unit:“bott”,minimo:48,prezzo:0.35,scad:“30/09/2026”},
+{prod:“Coca-Cola 33cl”,       cat:“Bevande”,    qta:24, unit:“bott”,minimo:48,prezzo:0.80,scad:“30/06/2026”},
+{prod:“Cornetti surgelati”,   cat:“Pasticceria”,qta:48, unit:“pz”,  minimo:24,prezzo:0.65,scad:“10/05/2026”},
+{prod:“Prosciutto cotto”,     cat:“Salumi”,     qta:2.4,unit:“kg”,  minimo:1, prezzo:9.50,scad:“30/04/2026”},
+{prod:“Mozzarella filone”,    cat:“Latticini”,  qta:1.8,unit:“kg”,  minimo:1, prezzo:5.20,scad:“29/04/2026”},
+{prod:“Pane fresco”,          cat:“Pane”,       qta:8,  unit:“kg”,  minimo:4, prezzo:2.10,scad:“28/04/2026”},
+],
+Beauregard:[
+{prod:“Caffè grani Gimoka”,cat:“Caffetteria”,qta:3, unit:“kg”,  minimo:2, prezzo:18,  scad:“20/06/2026”},
+{prod:“Acqua nat. 500ml”,  cat:“Bevande”,    qta:60,unit:“bott”,minimo:24,prezzo:0.35,scad:“30/09/2026”},
+{prod:“Cornetti surgelati”,cat:“Pasticceria”,qta:36,unit:“pz”,  minimo:12,prezzo:0.65,scad:“10/05/2026”},
+{prod:“Prosciutto cotto”,  cat:“Salumi”,     qta:1.2,unit:“kg”, minimo:.8,prezzo:9.50,scad:“02/05/2026”},
+{prod:“Mozzarella filone”, cat:“Latticini”,  qta:.8, unit:“kg”, minimo:.5,prezzo:5.20,scad:“29/04/2026”},
+{prod:“Pane fresco”,       cat:“Pane”,       qta:4,  unit:“kg”, minimo:2, prezzo:2.10,scad:“28/04/2026”},
+],
+};
+
+const mono = {fontFamily:”‘Share Tech Mono’,monospace”};
+const S = {
+header:{position:“sticky”,top:0,zIndex:300,background:“rgba(5,9,14,.97)”,borderBottom:`1px solid ${C.border}`,padding:“10px 14px”,display:“flex”,alignItems:“center”,justifyContent:“space-between”},
+nav:{position:“fixed”,bottom:0,left:“50%”,transform:“translateX(-50%)”,width:“100%”,maxWidth:480,background:“rgba(5,9,14,.97)”,borderTop:`1px solid ${C.border}`,display:“flex”,zIndex:200,padding:“4px 0 8px”},
+navBtn:(a)=>({display:“flex”,flexDirection:“column”,alignItems:“center”,gap:2,padding:“4px 0”,flex:1,background:“transparent”,border:“none”,color:a?C.cyan:C.dim,cursor:“pointer”,position:“relative”,transition:“color .15s”}),
+navLabel:{fontSize:8,letterSpacing:1,…mono,marginTop:1},
+page:{padding:“12px 14px 88px”,animation:“fadeUp .2s ease”},
+card:(v)=>({background:v===“glow”?C.bg2:v===“danger”?“rgba(255,59,48,.04)”:v===“success”?“rgba(50,215,75,.04)”:C.bg1,border:`1px solid ${v==="glow"?C.border2:v==="danger"?"rgba(255,59,48,.25)":v==="success"?"rgba(50,215,75,.2)":C.border}`,borderRadius:12,padding:“12px 13px”,marginBottom:9}),
+title:{…mono,fontSize:16,color:C.cyan,letterSpacing:3,marginBottom:13},
+inp:{background:”#070e16”,border:`1px solid ${C.border}`,borderRadius:9,padding:“10px 13px”,color:C.text,fontSize:14,width:“100%”,outline:“none”,fontFamily:”‘Rajdhani’,sans-serif”},
+lbl:{fontSize:10,color:C.dim,letterSpacing:2,…mono,marginBottom:4,display:“block”},
+badge:(c)=>({background:`${c}15`,border:`1px solid ${c}30`,color:c,borderRadius:20,padding:“2px 9px”,fontSize:10,…mono}),
+btn:(c,full)=>({background:`${c}12`,border:`1px solid ${c}35`,color:c,borderRadius:9,padding:“9px 14px”,cursor:“pointer”,fontSize:13,fontFamily:”‘Rajdhani’,sans-serif”,fontWeight:600,width:full?“100%”:“auto”}),
+btnP:{background:“rgba(0,229,255,.12)”,border:`1px solid ${C.cyan}`,color:C.cyan,borderRadius:9,padding:“11px”,cursor:“pointer”,fontSize:14,fontFamily:”‘Rajdhani’,sans-serif”,fontWeight:700,letterSpacing:2,width:“100%”,…mono},
+row:{display:“flex”,alignItems:“center”,justifyContent:“space-between”,gap:8},
+tabs:{display:“flex”,gap:7,marginBottom:13},
+tab:(a)=>({flex:1,padding:“7px 8px”,borderRadius:9,border:`1px solid ${a?C.cyan:C.border}`,background:a?C.cyanA:“transparent”,color:a?C.cyan:C.dim,cursor:“pointer”,fontSize:12,fontFamily:”‘Rajdhani’,sans-serif”,fontWeight:600,…mono,fontSize:10,letterSpacing:1}),
+};
+
+function YCKOrb({ size=36, state=“idle”, onClick }) {
+const isL = state===“listening”, isT = state===“thinking”;
+const col = isT ? C.red : isL ? C.orange : C.cyan;
+const glow = isT ? “rgba(255,59,48,.45)” : isL ? “rgba(255,159,10,.45)” : “rgba(0,229,255,.3)”;
+const spA = isT ? “.45s” : “3s”, spB = isT ? “.65s” : “4.8s”;
+const spC = isT ? “.8s” : “6.5s”, spD = isT ? “.35s” : “8.5s”;
+const cx = size/2;
+const sc = size/80;
+const rings = [
+{r:.92,da:“3 8”,  sp:spA,dir:“spinA”,w:.8, op:.45},
+{r:.85,da:“7 4”,  sp:spB,dir:“spinB”,w:1.5,op:.7},
+{r:.77,da:“1 7”,  sp:spC,dir:“spinA”,w:.6, op:.4},
+{r:.70,da:“4 5”,  sp:spD,dir:“spinB”,w:1,  op:.6},
+{r:.62,da:“10 3”, sp:spA,dir:“spinA”,w:.7, op:.5},
+{r:.54,da:“2 5”,  sp:spB,dir:“spinB”,w:1.2,op:.75},
+{r:.46,da:“5 2”,  sp:spC,dir:“spinA”,w:.5, op:.4},
+{r:.38,da:“2 4”,  sp:spD,dir:“spinB”,w:.8, op:.55},
+{r:.90,da:“0 11 3.5 0”,sp:spD,dir:“spinA”,w:2.2,op:.95},
+{r:.71,da:“0 7.5 2 0”, sp:spC,dir:“spinB”,w:1.8,op:.88},
+{r:.53,da:“0 4.5 1 0”, sp:spB,dir:“spinA”,w:1.5,op:.78},
+{r:.35,da:“0 3 .8 0”,  sp:spA,dir:“spinB”,w:1.2,op:.8},
+];
+const yckPaths = size>=70 ? [
+`M${10*sc} ${18*sc} L${20*sc} ${33*sc} L${30*sc} ${18*sc} M${20*sc} ${33*sc} L${20*sc} ${48*sc}`,
+`M${46*sc} ${22*sc} A${9*sc} ${9*sc} 0 1 0 ${46*sc} ${44*sc}`,
+`M${57*sc} ${18*sc} L${57*sc} ${48*sc} M${57*sc} ${33*sc} L${69*sc} ${18*sc} M${57*sc} ${33*sc} L${69*sc} ${48*sc}`,
+] : [];
+return (
+<div onClick={onClick} style={{width:size,height:size,position:“relative”,cursor:onClick?“pointer”:“default”}}>
+<div style={{position:“absolute”,inset:-size*.13,borderRadius:“50%”,background:`radial-gradient(circle, ${glow} 0%, transparent 70%)`,animation:`pulse 2s ease-in-out infinite`}}/>
+<svg style={{position:“absolute”,inset:0,overflow:“visible”}} width={size} height={size}>
+{rings.map((rg,i)=>(
+<circle key={i} cx={cx} cy={cx} r={rg.r*cx} fill=“none” stroke={col} strokeWidth={rg.w} strokeDasharray={rg.da} strokeOpacity={rg.op}
+style={{animation:`${rg.dir} ${rg.sp} linear infinite`,transformOrigin:`${cx}px ${cx}px`}}/>
+))}
+{[0,30,60,90,120,150,180,210,240,270,300,330].map((a,i)=>{
+const rad=a*Math.PI/180, r=cx*.91;
+return <circle key={i} cx={cx+r*Math.cos(rad)} cy={cx+r*Math.sin(rad)} r={size*.024} fill={col} opacity={.7} style={{animation:`glowP ${1.5+i*.2}s ease-in-out infinite`,animationDelay:`${i*.1}s`}}/>;
+})}
+{yckPaths.map((d,i)=>(
+<path key={i} d={d} fill=“none” stroke={col} strokeWidth=“1.4” strokeLinecap=“round”
+strokeOpacity={isT?.6:.18} style={{animation:`glowP ${2+i*.6}s ease-in-out infinite`}}/>
+))}
+</svg>
+<div style={{position:“absolute”,left:cx*.34,top:cx*.34,width:cx*1.32,height:cx*1.32,borderRadius:“50%”,background:`radial-gradient(circle, ${col}20 0%, transparent 70%)`}}/>
+{isT&&(
+<div style={{position:“absolute”,inset:0,display:“flex”,alignItems:“center”,justifyContent:“center”,gap:size*.04}}>
+{[0,1,2,3,4].map(i=><div key={i} style={{width:size*.034,height:size*.2,background:col,borderRadius:2,animation:`thinking .8s ease-in-out infinite`,animationDelay:`${i*.12}s`}}/>)}
+</div>
+)}
+{isL&&<div style={{position:“absolute”,inset:-size*.07,borderRadius:“50%”,border:`2px solid ${C.orange}`,animation:`pulse .8s ease-in-out infinite`}}/>}
+</div>
+);
+}
+
+function useYarvick(role, nome, richieste, setRichieste) {
+const [orbState, setOrbState] = useState(“idle”);
+const [msgs, setMsgs] = useState([]);
+const [showChat, setShowChat] = useState(false);
+const [input, setInput] = useState(””);
+const staffStr = STAFF.map(s=>`${s.nome}(${s.ruolo},${s.sede},${s.ore}h)`).join(”,”);
+const SYS = `Sei YARVICK, assistente AI di Sirio Bar — stile Jarvis. Professionale, diretto, preciso. Rispondi in italiano. SEDI: Parini (Lun-Ven 05:00-21:00, Sab 06:00-18:30, Dom 06:00-16:30) | Beauregard (Lun-Ven 05:00-18:30, Sab-Dom 06:00-14:30) STAFF: ${staffStr} REGOLE: 1)MAI Jessica+Adriana De Luca 2)Carmela SEMPRE con Matteo/Amine a Beauregard 3)Amine contratto scade 30/04/2026 SCADENZE CRITICHE: Contratto Amine scade 30/04 — URGENTE. Coca-Cola Parini in ritardo. Lavazza Beauregard in ritardo. ${role==="manager"?"Parli con YANNICK il responsabile. Puoi dare tutte le info e fare analisi complete.":"Parli con un dipendente. Dai info sui turni, HACCP, procedure. Non rivelare dati privati degli altri."}`;
+
+const send = async (text) => {
+if (!text.trim()) return;
+if (role===“dipendente” && /riposo|permesso|libero|ferie/i.test(text)) {
+setMsgs(p=>[…p,{r:“u”,t:text},{r:“a”,t:`Richiesta inoltrata a Yannick. Riceverai conferma presto.`}]);
+setRichieste(p=>[…p,{id:Date.now(),dipNome:nome,tipo:“Richiesta via Yarvick”,data:new Date().toLocaleDateString(“it”),stato:“In attesa”,nota:text}]);
+setInput(””); return;
+}
+const newMsgs=[…msgs,{r:“u”,t:text}];
+setMsgs(newMsgs); setInput(””); setOrbState(“thinking”);
+try {
+const res=await fetch(“https://api.anthropic.com/v1/messages”,{
+method:“POST”,
+headers:{“Content-Type”:“application/json”,“anthropic-version”:“2023-06-01”,“x-api-key”:window.ANTHROPIC_API_KEY||””},
+body:JSON.stringify({model:“claude-sonnet-4-20250514”,max_tokens:800,system:SYS,messages:newMsgs.map(m=>({role:m.r===“u”?“user”:“assistant”,content:m.t}))})
+});
+const d=await res.json();
+setMsgs([…newMsgs,{r:“a”,t:d.content?.[0]?.text||“Errore risposta.”}]);
+} catch { setMsgs([…newMsgs,{r:“a”,t:“Connessione interrotta. Riprova.”}]); }
+setOrbState(“idle”);
+};
+
+const startVoice = () => {
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){alert(“Microfono non supportato su questo browser”);return;}
+const r=new SR(); r.lang=“it-IT”;
+r.onstart=()=>setOrbState(“listening”);
+r.onresult=e=>{setInput(e.results[0][0].transcript);setOrbState(“idle”);};
+r.onerror=()=>setOrbState(“idle”); r.start();
+};
+return {orbState,msgs,showChat,setShowChat,input,setInput,send,startVoice};
+}
+
+function YarvickOverlay({yv, onClose}) {
+const bottomRef=useRef(null);
+useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:“smooth”});},[yv.msgs]);
+const suggs=[“Come va oggi?”,“Ordini in ritardo”,“Turni di domani”,“Giacenze basse”,“Contratto Amine”];
+return (
+<div style={{position:“fixed”,inset:0,zIndex:500,display:“flex”,flexDirection:“column”,background:“rgba(5,9,14,.98)”}}>
+<div style={{padding:“12px 16px”,borderBottom:`1px solid ${C.border}`,display:“flex”,alignItems:“center”,justifyContent:“space-between”}}>
+<div style={{display:“flex”,alignItems:“center”,gap:10}}>
+<YCKOrb size={36} state={yv.orbState}/>
+<div>
+<div style={{...mono,fontSize:14,color:C.cyan,letterSpacing:3}}>YARVICK</div>
+<div style={{fontSize:10,color:C.dim}}>{yv.orbState===“thinking”?“elabora…”:yv.orbState===“listening”?“in ascolto…”:“pronto”}</div>
+</div>
+</div>
+<button onClick={onClose} style={{background:“transparent”,border:`1px solid ${C.border}`,borderRadius:8,color:C.dim,padding:“6px 10px”,cursor:“pointer”,fontSize:12,…mono}}>✕</button>
+</div>
+<div style={{flex:1,overflowY:“auto”,padding:“12px 16px”}}>
+{yv.msgs.length===0&&(
+<div style={{textAlign:“center”,paddingTop:16}}>
+<div style={{color:C.dim,fontSize:13,marginBottom:14}}>Come posso aiutarti?</div>
+<div style={{display:“flex”,flexWrap:“wrap”,gap:8,justifyContent:“center”}}>
+{suggs.map(s=><button key={s} style={{fontSize:11,padding:“6px 12px”,borderRadius:20,border:`1px solid ${C.border}`,background:C.cyanB,color:C.cyan,cursor:“pointer”,fontFamily:”‘Rajdhani’,sans-serif”}} onClick={()=>yv.send(s)}>{s}</button>)}
+</div>
+</div>
+)}
+{yv.msgs.map((m,i)=>(
+<div key={i} style={{marginBottom:10,display:“flex”,flexDirection:m.r===“u”?“row-reverse”:“row”}}>
+<div style={{maxWidth:“80%”,background:m.r===“u”?“rgba(0,229,255,.1)”:C.bg2,border:`1px solid ${m.r==="u"?C.border2:C.border}`,borderRadius:10,padding:“9px 12px”,fontSize:13,lineHeight:1.6}}>{m.t}</div>
+</div>
+))}
+{yv.orbState===“thinking”&&<div style={{display:“flex”,gap:4,padding:“10px 13px”,background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,width:“fit-content”}}>
+{[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:“50%”,background:C.cyan,animation:`pulse 1s ease-in-out infinite`,animationDelay:`${i*.2}s`}}/>)}
+</div>}
+<div ref={bottomRef}/>
+</div>
+<div style={{padding:“10px 14px”,display:“flex”,gap:8,alignItems:“center”,borderTop:`1px solid ${C.border}`}}>
+<button onClick={yv.startVoice} style={{width:42,height:42,borderRadius:“50%”,background:yv.orbState===“listening”?“rgba(255,159,10,.2)”:C.cyanB,border:`1px solid ${yv.orbState==="listening"?C.orange:C.border}`,color:yv.orbState===“listening”?C.orange:C.cyan,cursor:“pointer”,display:“flex”,alignItems:“center”,justifyContent:“center”}}><Icon.Mic/></button>
+<input style={{…S.inp,flex:1}} placeholder=“Scrivi…” value={yv.input} onChange={e=>yv.setInput(e.target.value)} onKeyDown={e=>e.key===“Enter”&&yv.send(yv.input)}/>
+<button onClick={()=>yv.send(yv.input)} style={{width:42,height:42,borderRadius:“50%”,background:C.cyanA,border:`1px solid ${C.border}`,color:C.cyan,cursor:“pointer”,display:“flex”,alignItems:“center”,justifyContent:“center”}}><Icon.Send/></button>
+</div>
+</div>
+);
+}
+
+function Login({onLogin}) {
+const [email,setEmail]=useState(””); const [pass,setPass]=useState(””);
+const [err,setErr]=useState(””); const [orb,setOrb]=useState(“idle”);
+const go=()=>{
+setOrb(“thinking”);
+setTimeout(()=>{
+const USERS={
+“manager@yarvick.it”:[“manager”,“Yannick”,1],
+“jessica@yarvick.it”:[“dipendente”,“Jessica”,3],
+“matteo@yarvick.it”:[“dipendente”,“Matteo”,2],
+“amine@yarvick.it”:[“dipendente”,“Amine”,9],
+“carmela@yarvick.it”:[“dipendente”,“Carmela”,8],
+“stefania@yarvick.it”:[“dipendente”,“Stefania”,5],
+“simone@yarvick.it”:[“dipendente”,“Simone”,10],
+“adriana@yarvick.it”:[“dipendente”,“Adriana”,4],
+“cinzia@yarvick.it”:[“dipendente”,“Cinzia”,7],
+};
+const u=USERS[email.toLowerCase()];
+if(u&&(pass===“yarvick2026”||pass===“1234”)){onLogin(…u);return;}
+setErr(“Credenziali non valide”);setOrb(“idle”);
+},1100);
+};
+return (
+<div style={{minHeight:“100vh”,display:“flex”,flexDirection:“column”,justifyContent:“center”,alignItems:“center”,padding:24,background:C.bg}}>
+<div style={{marginBottom:36,display:“flex”,justifyContent:“center”}}><YCKOrb size={130} state={orb}/></div>
+<div style={{width:“100%”,maxWidth:290}}>
+<div style={{marginBottom:9}}><label style={S.lbl}>EMAIL</label><input style={S.inp} type=“email” value={email} onChange={e=>setEmail(e.target.value)} placeholder=“nome@yarvick.it”/></div>
+<div style={{marginBottom:11}}><label style={S.lbl}>PASSWORD</label><input style={S.inp} type=“password” value={pass} onChange={e=>setPass(e.target.value)} placeholder=”••••••••” onKeyDown={e=>e.key===“Enter”&&go()}/></div>
+{err&&<div style={{color:C.red,fontSize:11,textAlign:“center”,marginBottom:8,…mono}}>{err}</div>}
+<button style={S.btnP} onClick={go}>ACCEDI</button>
+<div style={{marginTop:14,fontSize:9,color:C.dim,textAlign:“center”,lineHeight:2,…mono}}>
+manager@yarvick.it / yarvick2026{”\n”}dipendenti@yarvick.it / 1234
+</div>
+</div>
+</div>
+);
+}
+
+function TurniGrid({dipId, isManager, settimane, setSett}) {
+const [sIdx,setSIdx]=useState(0);
+const [sede,setSede]=useState(“Parini”);
+const [showAdd,setShowAdd]=useState(null);
+const [form,setForm]=useState({dipId:””,in:””,fi:””,tipo:“Matt.”});
+const [err,setErr]=useState(””);
+const sett=settimane[sIdx]||settimane[0];
+const turni=sett[sede]||[];
+
+// Dipendenti che compaiono nei turni di quella sede e settimana
+const dipIdsInSede = […new Set(turni.map(t=>t.dipId))];
+const allRows = isManager
+? STAFF.filter(s=>!s.inattivo).sort((a,b)=>a.nome.localeCompare(b.nome))
+: STAFF.filter(s=>s.id===dipId);
+const rows = isManager
+? allRows.filter(s=>dipIdsInSede.includes(s.id) || s.manager)
+: allRows;
+
+const cellT=(dId,g)=>turni.filter(t=>t.dipId===dId&&t.g===g);
+
+const addTurno=(g)=>{
+const dip=STAFF.find(s=>s.id===parseInt(form.dipId));
+if(!dip||!form.in||!form.fi){setErr(“Compila tutti i campi”);return;}
+const pres=turni.filter(t=>t.g===g).map(t=>t.dipId);
+if(dip.id===3&&pres.includes(6)){setErr(“BLOCCO: Jessica NON può stare con Adriana De Luca”);return;}
+if(dip.id===6&&pres.includes(3)){setErr(“BLOCCO: Adriana De Luca NON può stare con Jessica”);return;}
+const updated=settimane.map((s,i)=>i===sIdx?{…s,[sede]:[…(s[sede]||[]),{dipId:dip.id,g,in:form.in,fi:form.fi,tipo:form.tipo}]}:s);
+setSett(updated);setShowAdd(null);setErr(””);setForm({dipId:””,in:””,fi:””,tipo:“Matt.”});
+};
+
+return (
+<div style={S.page}>
+<div style={{…S.card(“glow”),display:“flex”,alignItems:“center”,justifyContent:“space-between”,padding:“10px 13px”}}>
+<button onClick={()=>setSIdx(Math.min(settimane.length-1,sIdx+1))} style={{background:“transparent”,border:“none”,color:C.cyan,cursor:“pointer”,padding:4}}><Icon.ChevL/></button>
+<div style={{textAlign:“center”}}>
+<div style={{...mono,fontSize:9,color:C.dim}}>SETTIMANA {sett.num}</div>
+<div style={{...mono,fontSize:13,color:C.cyan}}>{sett.dal} → {sett.al}</div>
+</div>
+<button onClick={()=>setSIdx(Math.max(0,sIdx-1))} style={{background:“transparent”,border:“none”,color:C.cyan,cursor:“pointer”,padding:4}}><Icon.ChevR/></button>
+</div>
+<div style={S.tabs}>
+{[“Parini”,“Beauregard”].map(s=><button key={s} style={S.tab(sede===s)} onClick={()=>setSede(s)}>{s}</button>)}
+</div>
+<div style={{overflowX:“auto”,marginBottom:10,borderRadius:10,border:`1px solid ${C.border}`}}>
+<table style={{borderCollapse:“collapse”,minWidth:520,width:“100%”}}>
+<thead>
+<tr style={{background:C.bg3}}>
+<th style={{…mono,fontSize:9,color:C.dim,padding:“6px 8px”,textAlign:“left”,position:“sticky”,left:0,background:C.bg3,minWidth:90}}>DIPENDENTE</th>
+{sett.giorni.map((g,i)=>(
+<th key={i} style={{…mono,fontSize:8,color:C.dim,padding:“6px 4px”,textAlign:“center”,minWidth:70}}>{g}</th>
+))}
+</tr>
+</thead>
+<tbody>
+{rows.map(dip=>(
+<tr key={dip.id} style={{background:dip.id===dipId?C.bg2:C.bg1}}>
+<td style={{padding:“4px 8px”,position:“sticky”,left:0,background:dip.id===dipId?C.bg2:C.bg1,borderRight:`1px solid ${C.border}`}}>
+<div style={{fontSize:10,fontWeight:600,color:dip.id===dipId?C.cyan:dip.manager?C.cyan:C.text,whiteSpace:“nowrap”}}>{dip.nome.split(” “)[0]}</div>
+<div style={{fontSize:8,color:C.dim}}>{dip.ruolo}</div>
+</td>
+{sett.giorni.map((_,gi)=>{
+const ct=cellT(dip.id,gi);
+return (
+<td key={gi} style={{padding:2,verticalAlign:“top”,borderBottom:`1px solid ${C.border}30`}}>
+{ct.length===0?(
+isManager?(
+<div onClick={()=>{setShowAdd({g:gi,dipId:dip.id});setForm({dipId:String(dip.id),in:””,fi:””,tipo:“Matt.”});}} style={{height:38,display:“flex”,alignItems:“center”,justifyContent:“center”,color:C.border,cursor:“pointer”,fontSize:16}}>+</div>
+):<div style={{height:38}}/>
+):ct.map((t,ti)=>(
+<div key={ti} style={{background:`${TIPICOLOR[t.tipo]||C.dim}18`,border:`1px solid ${TIPICOLOR[t.tipo]||C.dim}30`,borderRadius:5,padding:“2px 4px”,margin:1}}>
+<div style={{...mono,fontSize:7,color:TIPICOLOR[t.tipo]||C.dim}}>{t.tipo}</div>
+<div style={{...mono,fontSize:8,color:C.text}}>{t.in}–{t.fi}</div>
+</div>
+))}
+</td>
+);
+})}
+</tr>
+))}
+</tbody>
+</table>
+</div>
+{showAdd&&isManager&&(
+<div style={{…S.card(“glow”),animation:“slideDown .2s ease”}}>
+<div style={{...mono,fontSize:10,color:C.cyan,marginBottom:9}}>AGGIUNGI TURNO — {sett.giorni[showAdd.g]}</div>
+<div style={{marginBottom:7}}><label style={S.lbl}>DIPENDENTE</label>
+<select style={S.inp} value={form.dipId} onChange={e=>setForm({…form,dipId:e.target.value})}>
+<option value="">Seleziona…</option>
+{STAFF.filter(s=>!s.inattivo).sort((a,b)=>a.nome.localeCompare(b.nome)).map(s=><option key={s.id} value={s.id}>{s.nome}</option>)}
+</select>
+</div>
+<div style={{display:“flex”,gap:7,marginBottom:7}}>
+<div style={{flex:1}}><label style={S.lbl}>INIZIO</label><input style={S.inp} placeholder=“08:00” value={form.in} onChange={e=>setForm({…form,in:e.target.value})}/></div>
+<div style={{flex:1}}><label style={S.lbl}>FINE</label><input style={S.inp} placeholder=“14:00” value={form.fi} onChange={e=>setForm({…form,fi:e.target.value})}/></div>
+</div>
+<div style={{marginBottom:9}}><label style={S.lbl}>TIPO</label>
+<select style={S.inp} value={form.tipo} onChange={e=>setForm({…form,tipo:e.target.value})}>
+{TIPI_TURNO.map(t=><option key={t}>{t}</option>)}
+</select>
+</div>
+{err&&<div style={{background:“rgba(255,59,48,.09)”,border:“1px solid rgba(255,59,48,.3)”,borderRadius:8,padding:“8px 11px”,color:C.red,fontSize:12,marginBottom:9,…mono}}>{err}</div>}
+<div style={{display:“flex”,gap:7}}>
+<button style={{…S.btn(C.green,false),flex:1}} onClick={()=>addTurno(showAdd.g)}>✓ SALVA</button>
+<button style={{…S.btn(C.dim,false),flex:1}} onClick={()=>{setShowAdd(null);setErr(””);}}>ANNULLA</button>
+</div>
+</div>
+)}
+{!isManager&&(
+<>
+<div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:8,marginTop:4}}>I MIEI TURNI QUESTA SETTIMANA</div>
+{(sett[sede]||[]).filter(t=>t.dipId===dipId).length===0
+?<div style={{color:C.dim,fontSize:13,textAlign:“center”,padding:20}}>Nessun turno su {sede} questa settimana</div>
+:(sett[sede]||[]).filter(t=>t.dipId===dipId).map((t,i)=>{
+const colleghi=(sett[sede]||[]).filter(x=>x.g===t.g&&x.dipId!==dipId);
+return (
+<div key={i} style={{…S.card(“glow”),marginBottom:8}}>
+<div style={S.row}>
+<div>
+<div style={{...mono,fontSize:13,color:C.text}}>{sett.giorni[t.g]}</div>
+<div style={{fontSize:11,color:TIPICOLOR[t.tipo]||C.dim}}>{t.tipo}</div>
+{colleghi.length>0&&<div style={{fontSize:11,color:C.dim,marginTop:2}}>con: {colleghi.map(c=>STAFF.find(s=>s.id===c.dipId)?.nome?.split(” “)[0]).join(”, “)}</div>}
+</div>
+<div style={{...mono,color:C.cyan,fontSize:14,fontWeight:700}}>{t.in}–{t.fi}</div>
+</div>
+</div>
+);
+})
+}
+</>
+)}
+</div>
+);
+}
+
+function ManagerHome({onNav, richieste, ordini}) {
+const oggi=new Date();
+const isRitardo=(o)=>{
+if(o.stato===“Consegnato”)return false;
+const [d,m]=o.consegna.split(”/”).map(Number);
+return oggi>new Date(2026,m-1,d);
+};
+const notifiche=[
+…ordini.filter(isRitardo).map(o=>({tipo:“danger”,testo:`${o.fornitore} ${o.sede} — in ritardo`,nav:“ordini”})),
+{tipo:“danger”,testo:“Contratto Amine Bouchrit scade 30/04 — urgente”,nav:“agenda”},
+…richieste.filter(r=>r.stato===“In attesa”).map(r=>({tipo:“warn”,testo:`${r.dipNome}: ${r.tipo}`,nav:“richieste”})),
+];
+const oggiTurni=[…SETTIMANE_INIT[0].Parini,…SETTIMANE_INIT[0].Beauregard].filter(t=>t.g===1);
+return (
+<div style={S.page}>
+<div style={{marginBottom:14}}>
+<div style={{...mono,fontSize:19,color:C.cyan,letterSpacing:2}}>CENTRO COMANDO</div>
+<div style={{fontSize:11,color:C.dim,marginTop:2}}>Sett. 18 · 27/04 – 03/05/2026</div>
+</div>
+{notifiche.length>0&&(
+<div style={{…S.card(””),padding:0,overflow:“hidden”,marginBottom:9,borderColor:“rgba(255,159,10,.3)”}}>
+<div style={{padding:“9px 14px 7px”,borderBottom:`1px solid rgba(255,159,10,.15)`,display:“flex”,justifyContent:“space-between”,alignItems:“center”}}>
+<div style={{...mono,fontSize:9,color:C.orange}}>⚡ NOTIFICHE ({notifiche.length})</div>
+<div style={{fontSize:9,color:C.dim}}>scorri ↕</div>
+</div>
+<div style={{maxHeight:180,overflowY:“auto”,padding:“7px 12px”}}>
+{notifiche.map((n,i)=>(
+<div key={i} onClick={()=>onNav(n.nav)} style={{background:n.tipo===“danger”?“rgba(255,59,48,.06)”:“rgba(255,159,10,.05)”,border:`1px solid ${n.tipo==="danger"?"rgba(255,59,48,.2)":"rgba(255,159,10,.2)"}`,borderRadius:8,padding:“7px 10px”,marginBottom:5,fontSize:12,color:n.tipo===“danger”?C.red:C.orange,cursor:“pointer”}}>{n.testo}</div>
+))}
+</div>
+</div>
+)}
+<div style={{display:“grid”,gridTemplateColumns:“1fr 1fr 1fr”,gap:8,marginBottom:9}}>
+{[
+{label:“Turni oggi”,val:oggiTurni.length,color:C.cyan,nav:“turni”},
+{label:“Ordini attivi”,val:ordini.filter(o=>o.stato!==“Consegnato”).length,color:C.orange,nav:“ordini”},
+{label:“Richieste”,val:richieste.filter(r=>r.stato===“In attesa”).length,color:C.pink,nav:“richieste”},
+].map((s,i)=>(
+<div key={i} style={{…S.card(””),cursor:“pointer”,textAlign:“center”,padding:“11px 6px”}} onClick={()=>onNav(s.nav)}>
+<div style={{...mono,fontSize:24,fontWeight:800,color:s.color,lineHeight:1}}>{s.val}</div>
+<div style={{fontSize:10,color:C.dim,marginTop:3}}>{s.label}</div>
+</div>
+))}
+</div>
+<div style={S.card(””)}>
+<div style={{...S.row,marginBottom:9}}>
+<div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2}}>QUESTA SETTIMANA</div>
+<button style={{…S.btn(C.cyan),padding:“3px 9px”,fontSize:9}} onClick={()=>onNav(“agenda”)}>vedi tutto</button>
+</div>
+{AGENDA_INIT.filter(a=>a.urgente).map(a=>(
+<div key={a.id} style={{fontSize:12,color:”#ff8a80”,background:“rgba(255,59,48,.05)”,border:“1px solid rgba(255,59,48,.15)”,borderRadius:7,padding:“6px 10px”,marginBottom:5}}>🔴 {a.testo}</div>
+))}
+{AGENDA_INIT.filter(a=>!a.urgente).slice(0,2).map(a=>(
+<div key={a.id} style={{fontSize:12,color:C.dim,padding:“4px 0”,borderBottom:`1px solid ${C.border}`}}>{a.data} · {a.testo}</div>
+))}
+</div>
+</div>
+);
+}
+
+function ManagerAgenda() {
+const [items,setItems]=useState(AGENDA_INIT);
+const [form,setForm]=useState({data:””,tipo:“scadenza”,testo:””});
+const [show,setShow]=useState(false);
+const tipoC={scadenza:C.red,ordine:C.orange,compleanno:C.pink,visita:C.cyan};
+const tipoL={scadenza:“SCADENZA”,ordine:“ORDINE”,compleanno:“COMPLEANNO”,visita:“VISITA”};
+return (
+<div style={S.page}>
+<div style={{...S.row,marginBottom:13}}>
+<div style={S.title}>AGENDA</div>
+<button style={{…S.btn(C.cyan),display:“flex”,alignItems:“center”,gap:4,padding:“7px 12px”}} onClick={()=>setShow(!show)}><Icon.Plus/> Aggiungi</button>
+</div>
+{show&&(
+<div style={{…S.card(“glow”),marginBottom:11}}>
+<div style={{marginBottom:7}}><label style={S.lbl}>DATA</label><input style={S.inp} type=“date” value={form.data} onChange={e=>setForm({…form,data:e.target.value})}/></div>
+<div style={{marginBottom:7}}><label style={S.lbl}>TIPO</label>
+<select style={S.inp} value={form.tipo} onChange={e=>setForm({…form,tipo:e.target.value})}>
+{Object.keys(tipoL).map(t=><option key={t} value={t}>{tipoL[t]}</option>)}
+</select>
+</div>
+<div style={{marginBottom:9}}><label style={S.lbl}>DESCRIZIONE</label><input style={S.inp} value={form.testo} onChange={e=>setForm({…form,testo:e.target.value})} placeholder=“Descrizione…”/></div>
+<div style={{display:“flex”,gap:7}}>
+<button style={{…S.btn(C.green,false),flex:1}} onClick={()=>{if(form.data&&form.testo){setItems(p=>[…p,{id:Date.now(),…form,urgente:false}]);setShow(false);setForm({data:””,tipo:“scadenza”,testo:””});}}}>✓ SALVA</button>
+<button style={{…S.btn(C.dim,false),flex:1}} onClick={()=>setShow(false)}>ANNULLA</button>
+</div>
+</div>
+)}
+{items.map(item=>{
+const c=tipoC[item.tipo]||C.cyan;
+return (
+<div key={item.id} style={{…S.card(””),borderLeft:`3px solid ${c}`,paddingLeft:13,marginBottom:8}}>
+<div style={S.row}>
+<div style={{flex:1}}>
+<div style={{...mono,fontSize:9,color:c,letterSpacing:2,marginBottom:3}}>{tipoL[item.tipo]||item.tipo}</div>
+<div style={{fontSize:13}}>{item.testo}</div>
+</div>
+<div style={{textAlign:“right”,flexShrink:0}}>
+<div style={{...mono,fontSize:10,color:item.urgente?C.red:C.dim}}>{item.data}</div>
+{item.urgente&&<span style={S.badge(C.red)}>URGENTE</span>}
+</div>
+</div>
+</div>
+);
+})}
+</div>
+);
+}
+
+function ManagerOrdini({ordini, setOrdini}) {
+const [filtro,setFiltro]=useState(“Attivi”);
+const [show,setShow]=useState(false);
+const [form,setForm]=useState({fornitore:””,sede:“Parini”,prodotti:””,consegna:””});
+const [viewBolla,setViewBolla]=useState(null);
+const oggi=new Date();
+const isRitardo=(o)=>{if(o.stato===“Consegnato”)return false;const [d,m]=o.consegna.split(”/”).map(Number);return oggi>new Date(2026,m-1,d);};
+const statoC=(o)=>isRitardo(o)?C.red:o.stato===“Consegnato”?C.green:C.orange;
+const statoLabel=(o)=>isRitardo(o)?“In Ritardo”:o.stato;
+const attivi=ordini.filter(o=>o.stato!==“Consegnato”);
+const consegnati=ordini.filter(o=>o.stato===“Consegnato”);
+const filtrati=filtro===“Attivi”?attivi:filtro===“Consegnati”?consegnati:ordini;
+return (
+<div style={S.page}>
+<div style={{...S.row,marginBottom:13}}>
+<div style={S.title}>ORDINI</div>
+<button style={{…S.btn(C.cyan),display:“flex”,alignItems:“center”,gap:4,padding:“7px 12px”}} onClick={()=>setShow(!show)}><Icon.Plus/> Nuovo</button>
+</div>
+<div style={S.tabs}>
+{[“Attivi”,“Consegnati”,“Tutti”].map(f=><button key={f} style={S.tab(filtro===f)} onClick={()=>setFiltro(f)}>{f}</button>)}
+</div>
+{show&&(
+<div style={{…S.card(“glow”),marginBottom:11}}>
+<div style={{marginBottom:7}}><label style={S.lbl}>FORNITORE</label><input style={S.inp} value={form.fornitore} onChange={e=>setForm({…form,fornitore:e.target.value})} placeholder=“Es. Coca-Cola”/></div>
+<div style={{marginBottom:7}}><label style={S.lbl}>SEDE</label>
+<select style={S.inp} value={form.sede} onChange={e=>setForm({…form,sede:e.target.value})}>
+<option>Parini</option><option>Beauregard</option><option>Entrambe</option>
+</select>
+</div>
+<div style={{marginBottom:7}}><label style={S.lbl}>PRODOTTI</label><input style={S.inp} value={form.prodotti} onChange={e=>setForm({…form,prodotti:e.target.value})} placeholder=“Lista prodotti…”/></div>
+<div style={{marginBottom:9}}><label style={S.lbl}>CONSEGNA PREVISTA (gg/mm)</label><input style={S.inp} value={form.consegna} onChange={e=>setForm({…form,consegna:e.target.value})} placeholder=“28/04”/></div>
+<div style={{display:“flex”,gap:7}}>
+<button style={{…S.btn(C.green,false),flex:1}} onClick={()=>{if(form.fornitore&&form.prodotti){setOrdini(p=>[…p,{id:Date.now(),data:new Date().toLocaleDateString(“it”).slice(0,5),…form,stato:“In attesa”,bolla:false}]);setShow(false);setForm({fornitore:””,sede:“Parini”,prodotti:””,consegna:””});}}}>✓ SALVA</button>
+<button style={{…S.btn(C.dim,false),flex:1}} onClick={()=>setShow(false)}>ANNULLA</button>
+</div>
+</div>
+)}
+{filtrati.map(o=>(
+<div key={o.id} style={{…S.card(””),borderColor:isRitardo(o)?“rgba(255,59,48,.3)”:o.bolla?“rgba(50,215,75,.2)”:C.border,marginBottom:9}}>
+<div style={{...S.row,marginBottom:5}}>
+<div><div style={{fontSize:15,fontWeight:700}}>{o.fornitore}</div><div style={{...mono,fontSize:9,color:C.dim}}>{o.sede} · ord. {o.data}</div></div>
+<span style={S.badge(statoC(o))}>{statoLabel(o)}</span>
+</div>
+<div style={{fontSize:12,color:C.text,marginBottom:7,lineHeight:1.5}}>{o.prodotti}</div>
+<div style={{…S.row,marginBottom:o.stato!==“Consegnato”?9:0}}>
+<div style={{fontSize:11,color:C.dim}}>Consegna: <span style={{color:isRitardo(o)?C.red:C.text}}>{o.consegna}</span></div>
+<div style={{display:“flex”,gap:6,alignItems:“center”}}>
+<span style={S.badge(o.bolla?C.green:C.orange)}>{o.bolla?“Bolla ✓”:“Bolla attesa”}</span>
+{o.bolla&&o.foto&&<button style={{…S.btn(C.cyan),padding:“2px 8px”,fontSize:9}} onClick={()=>setViewBolla(o.foto)}>Vedi</button>}
+</div>
+</div>
+{o.stato!==“Consegnato”&&(
+o.bolla
+?<button style={S.btn(C.green,true)} onClick={()=>setOrdini(ordini.map(x=>x.id===o.id?{…x,stato:“Consegnato”}:x))}>✓ CONFERMA CONSEGNA</button>
+:<div style={{background:“rgba(255,159,10,.05)”,border:“1px solid rgba(255,159,10,.2)”,borderRadius:8,padding:“8px 12px”,fontSize:12,color:C.orange,…mono}}>⏳ In attesa di bolla dal dipendente</div>
+)}
+</div>
+))}
+{viewBolla&&<div style={{position:“fixed”,inset:0,background:“rgba(0,0,0,.9)”,zIndex:400,display:“flex”,alignItems:“center”,justifyContent:“center”}} onClick={()=>setViewBolla(null)}><img src={viewBolla} style={{maxWidth:“90%”,maxHeight:“90vh”,borderRadius:8}}/></div>}
+</div>
+);
+}
+
+function ManagerGiacenze() {
+const [sede,setSede]=useState(“Parini”);
+const items=GIACENZE[sede]||[];
+const oggi=new Date();
+const parseDate=(s)=>{const p=s.split(”/”);return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));};
+const isScad=(scad)=>(parseDate(scad)-oggi)<7*24*3600*1000;
+const isBasso=(item)=>item.qta<=item.minimo*1.2;
+const valTot=items.reduce((a,i)=>a+i.qta*i.prezzo,0);
+const topV=[{p:“Caffè espresso”,q:323,e:333.70},{p:“Cappuccino”,q:103,e:132.60},{p:“Macchiato”,q:87,e:96.00},{p:“Panini”,q:183,e:542.00}];
+const menoV=[{p:“Crodino 100ml”,q:2},{p:“Crackers GP”,q:1},{p:“Schweppes Tonica”,q:5}];
+const critica=items.filter(i=>isScad(i.scad)||isBasso(i));
+return (
+<div style={S.page}>
+<div style={S.title}>GIACENZE & DATI</div>
+<div style={S.tabs}>{[“Parini”,“Beauregard”].map(s=><button key={s} style={S.tab(sede===s)} onClick={()=>setSede(s)}>{s}</button>)}</div>
+<div style={{…S.card(“glow”),marginBottom:11}}>
+<div style={{...mono,fontSize:9,color:C.dim,letterSpacing:2}}>VALORE STIMATO GIACENZE</div>
+<div style={{...mono,fontSize:26,color:C.cyan,marginTop:4}}>€ {valTot.toFixed(0)}</div>
+<div style={{fontSize:11,color:C.dim,marginTop:2}}>Basato su prezzi di costo medi</div>
+</div>
+{critica.length>0&&(
+<div style={{…S.card(“danger”),marginBottom:11}}>
+<div style={{...mono,fontSize:9,color:C.red,marginBottom:7}}>⚠️ ATTENZIONE</div>
+{items.filter(i=>isScad(i.scad)).map((i,idx)=><div key={idx} style={{fontSize:12,color:C.red,marginBottom:3}}>🔴 {i.prod} — scade {i.scad}</div>)}
+{items.filter(i=>isBasso(i)&&!isScad(i.scad)).map((i,idx)=><div key={idx} style={{fontSize:12,color:C.orange,marginBottom:3}}>🟠 {i.prod} — sotto soglia ({i.qta}{i.unit})</div>)}
+</div>
+)}
+<div style={{...mono,fontSize:9,color:C.dim,letterSpacing:2,marginBottom:8}}>PRODOTTI IN STOCK</div>
+{items.map((i,idx)=>{
+const basso=isBasso(i),scad=isScad(i.scad),col=scad?C.red:basso?C.orange:C.green;
+return (
+<div key={idx} style={{…S.card(””),borderColor:`${col}20`,marginBottom:6}}>
+<div style={S.row}>
+<div><div style={{fontSize:13,fontWeight:600}}>{i.prod}</div><div style={{fontSize:11,color:C.dim}}>{i.cat} · scad. {i.scad}</div></div>
+<div style={{textAlign:“right”}}><div style={{...mono,fontSize:15,color:col,fontWeight:700}}>{i.qta}{i.unit}</div><div style={{fontSize:10,color:C.dim}}>min. {i.minimo}{i.unit}</div></div>
+</div>
+<div style={{height:3,background:C.bg3,borderRadius:2,marginTop:8}}><div style={{height:“100%”,width:`${Math.min(100,(i.qta/i.minimo/2)*100)}%`,background:col,borderRadius:2}}/></div>
+</div>
+);
+})}
+<div style={{…mono,fontSize:9,color:C.cyan,letterSpacing:2,margin:“14px 0 8px”}}>TOP VENDUTI — OGGI</div>
+{topV.map((v,i)=>(
+<div key={i} style={{…S.row,padding:“6px 0”,borderBottom:`1px solid ${C.border}`}}>
+<div style={{fontSize:13}}>{v.p}</div>
+<div style={{textAlign:“right”}}><div style={{...mono,fontSize:11,color:C.green}}>{v.q} pz</div><div style={{...mono,fontSize:10,color:C.dim}}>€{v.e.toFixed(2)}</div></div>
+</div>
+))}
+<div style={{…mono,fontSize:9,color:C.orange,letterSpacing:2,margin:“14px 0 8px”}}>MENO VENDUTI</div>
+{menoV.map((v,i)=>(
+<div key={i} style={{…S.row,padding:“6px 0”,borderBottom:`1px solid ${C.border}`}}>
+<div style={{fontSize:13}}>{v.p}</div>
+<div style={{...mono,fontSize:11,color:C.orange}}>{v.q} pz</div>
+</div>
+))}
+</div>
+);
+}
+
+function ManagerStaff() {
+const [sel,setSel]=useState(null);
+const dip=STAFF.find(s=>s.id===sel);
+if(sel&&dip) return (
+<div style={S.page}>
+<button style={{…S.btn(C.dim),marginBottom:13,display:“flex”,alignItems:“center”,gap:6}} onClick={()=>setSel(null)}><Icon.ChevL/> STAFF</button>
+<div style={{…S.card(“glow”),marginBottom:9}}>
+<div style={{...S.row,marginBottom:8}}>
+<div style={{width:48,height:48,borderRadius:“50%”,background:C.cyanA,border:`1px solid ${C.border2}`,display:“flex”,alignItems:“center”,justifyContent:“center”,…mono,fontSize:16,color:C.cyan}}>
+{dip.nome.split(” “).map(n=>n[0]).join(””)}
+</div>
+<div style={{flex:1,marginLeft:10}}>
+<div style={{fontSize:16,fontWeight:700,color:dip.manager?C.cyan:C.text}}>{dip.nome}</div>
+<div style={{fontSize:12,color:C.dim}}>{dip.ruolo} · {dip.sede}</div>
+</div>
+{dip.inattivo&&<span style={S.badge(C.dim)}>INATTIVO</span>}
+</div>
+{dip.alert&&<div style={{fontSize:12,color:C.red,marginBottom:4}}>⚠️ {dip.alert}</div>}
+{dip.scadenza&&<div style={{fontSize:12,color:C.orange,marginBottom:4}}>⚠️ {dip.scadenza}</div>}
+</div>
+<div style={S.card(””)}>
+{[
+[“📞 Telefono”, dip.cell||”—”],
+[“📧 Email”, dip.email||”—”],
+[“🎂 Nato il”, dip.nato||”—”],
+[“🏥 Sede”, dip.sede],
+[“⏱️ Ore sett.”, `${dip.ore}h`],
+].map(([k,v])=>(
+<div key={k} style={{…S.row,padding:“8px 0”,borderBottom:`1px solid ${C.border}`}}>
+<div style={{fontSize:12,color:C.dim,...mono}}>{k}</div>
+<div style={{fontSize:13,color:C.text,textAlign:“right”}}>{v}</div>
+</div>
+))}
+</div>
+<div style={{…S.card(””),marginTop:4}}>
+<div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:9}}>ATTESTATI</div>
+{[“HACCP”,“Sicurezza”,“Antincendio”,“Primo Soccorso”].map(a=>(
+<div key={a} style={{…S.row,padding:“7px 0”,borderBottom:`1px solid ${C.border}`}}>
+<div style={{fontSize:13}}>{a}</div>
+<span style={S.badge(C.dim)}>da caricare</span>
+</div>
+))}
+</div>
+</div>
+);
+return (
+<div style={S.page}>
+<div style={S.title}>STAFF</div>
+{STAFF.sort((a,b)=>a.nome.localeCompare(b.nome)).map(s=>(
+<div key={s.id} style={{…S.card(””),opacity:s.inattivo?.5:1,borderColor:s.critico?“rgba(255,59,48,.3)”:C.border,cursor:“pointer”,marginBottom:8}} onClick={()=>setSel(s.id)}>
+<div style={{...S.row,marginBottom:4}}>
+<div>
+<div style={{fontSize:14,fontWeight:700,color:s.manager?C.cyan:C.text}}>{s.nome}</div>
+<div style={{fontSize:11,color:C.dim}}>{s.ruolo} · {s.sede} · {s.ore}h/sett</div>
+</div>
+<div style={{display:“flex”,flexDirection:“column”,gap:3,alignItems:“flex-end”}}>
+{s.manager&&<span style={S.badge(C.cyan)}>MANAGER</span>}
+{s.scadenza&&<span style={S.badge(C.orange)}>⚠️ SCADENZA</span>}
+{s.inattivo&&<span style={S.badge(C.dim)}>INATTIVO</span>}
+</div>
+</div>
+{s.cell&&<div style={{fontSize:11,color:C.dim,...mono}}>{s.cell}</div>}
+</div>
+))}
+</div>
+);
+}
+
+function ManagerRichieste({richieste, setRichieste}) {
+return (
+<div style={S.page}>
+<div style={S.title}>RICHIESTE STAFF</div>
+{richieste.length===0&&<div style={{color:C.dim,textAlign:“center”,marginTop:40,…mono}}>Nessuna richiesta in sospeso</div>}
+{richieste.map(r=>(
+<div key={r.id} style={{…S.card(””),borderColor:r.stato===“In attesa”?“rgba(255,159,10,.3)”:r.stato===“Approvata”?“rgba(50,215,75,.2)”:C.border,marginBottom:9}}>
+<div style={{...S.row,marginBottom:7}}>
+<div><div style={{fontSize:14,fontWeight:700}}>{r.dipNome}</div><div style={{fontSize:11,color:C.dim}}>{r.tipo} · {r.data}</div></div>
+<span style={S.badge(r.stato===“In attesa”?C.orange:r.stato===“Approvata”?C.green:C.red)}>{r.stato}</span>
+</div>
+{r.nota&&<div style={{fontSize:12,color:C.dim,marginBottom:r.stato===“In attesa”?9:0}}>{r.nota}</div>}
+{r.stato===“In attesa”&&(
+<div style={{display:“flex”,gap:7}}>
+<button style={{…S.btn(C.green,false),flex:1,display:“flex”,alignItems:“center”,justifyContent:“center”,gap:4}} onClick={()=>setRichieste(richieste.map(x=>x.id===r.id?{…x,stato:“Approvata”}:x))}><Icon.Chk/> APPROVA</button>
+<button style={{…S.btn(C.red,false),flex:1,display:“flex”,alignItems:“center”,justifyContent:“center”,gap:4}} onClick={()=>setRichieste(richieste.map(x=>x.id===r.id?{…x,stato:“Rifiutata”}:x))}><Icon.Xmark/> RIFIUTA</button>
+</div>
+)}
+</div>
+))}
+</div>
+);
+}
+
+function DipendenteHome({dipId, nome, onNav, richieste, settimane}) {
+const sett=settimane[0];
+const tuttiT=[…sett.Parini,…sett.Beauregard];
+const oggi=new Date().getDay();
+const giornoIdx=oggi===0?6:oggi-1;
+const oggiT=tuttiT.find(t=>t.dipId===dipId&&t.g===giornoIdx);
+const prossimiT=[];
+for(let si=0;si<settimane.length&&prossimiT.length<7;si++){
+const s=settimane[si];
+const tutti=[…s.Parini.map(t=>({…t,sede:“Parini”,sett:s})),…s.Beauregard.map(t=>({…t,sede:“Beauregard”,sett:s}))];
+tutti.filter(t=>t.dipId===dipId).forEach(t=>{if(prossimiT.length<7)prossimiT.push(t);});
+}
+const pending=richieste.filter(r=>r.dipNome===nome&&r.stato===“In attesa”).length;
+return (
+<div style={S.page}>
+<div style={{marginBottom:14}}>
+<div style={{...mono,fontSize:20,color:C.cyan}}>CIAO, {nome.toUpperCase()}</div>
+<div style={{fontSize:10,color:C.dim,marginTop:2}}>Sett. {sett.num} · {sett.dal} → {sett.al}</div>
+</div>
+<div style={{…S.card(“glow”),marginBottom:9}}>
+<div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:7}}>IL TUO TURNO OGGI</div>
+{oggiT
+?<><div style={{...mono,fontSize:30,fontWeight:700}}>{oggiT.in} – {oggiT.fi}</div><div style={{fontSize:12,color:C.dim,marginTop:3}}>{oggiT.tipo} · {tuttiT.find(t=>t===oggiT)?“Parini”:“Beauregard”}</div></>
+:<div style={{color:C.dim,fontSize:13}}>Nessun turno oggi 🎉</div>
+}
+</div>
+<div style={{display:“grid”,gridTemplateColumns:“1fr 1fr 1fr”,gap:7,marginBottom:9}}>
+{[
+{label:“I Miei Turni”,icon:<Icon.Cal/>,color:C.cyan,nav:“turni”},
+{label:“Richieste”,icon:<Icon.Msg/>,color:C.orange,nav:“richieste”,badge:pending},
+{label:“Bolla”,icon:<Icon.Scan/>,color:C.green,nav:“scansione”},
+].map(b=>(
+<div key={b.label} style={{…S.card(””),textAlign:“center”,cursor:“pointer”,position:“relative”}} onClick={()=>onNav(b.nav)}>
+{b.badge>0&&<div style={{position:“absolute”,top:6,right:6,width:15,height:15,borderRadius:“50%”,background:C.orange,color:”#000”,…mono,fontSize:8,display:“flex”,alignItems:“center”,justifyContent:“center”}}>{b.badge}</div>}
+<div style={{color:b.color,marginBottom:4,display:“flex”,justifyContent:“center”}}>{b.icon}</div>
+<div style={{...mono,fontSize:9,color:b.color}}>{b.label}</div>
+</div>
+))}
+</div>
+<div style={S.card(””)}>
+<div style={{...S.row,marginBottom:9}}>
+<div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2}}>PROSSIMI TURNI</div>
+<button style={{…S.btn(C.cyan),padding:“2px 8px”,fontSize:9}} onClick={()=>onNav(“turni”)}>tutti</button>
+</div>
+{prossimiT.length===0
+?<div style={{color:C.dim,fontSize:12}}>Nessun turno questa settimana</div>
+:prossimiT.slice(0,5).map((t,i)=>(
+<div key={i} style={{…S.row,padding:“6px 0”,borderBottom:`1px solid ${C.border}`}}>
+<div>
+<div style={{fontSize:12}}>{t.sett.giorni[t.g]}</div>
+<div style={{fontSize:10,color:C.dim}}>{t.sede} · {t.tipo}</div>
+</div>
+<div style={{...mono,color:C.cyan,fontSize:11}}>{t.in}–{t.fi}</div>
+</div>
+))
+}
+</div>
+</div>
+);
+}
+
+function DipendenteRichieste({nome, richieste, setRichieste, settimane}) {
+const [tipo,setTipo]=useState(“Giorno libero”);
+const [dIdx,setDIdx]=useState(0);
+const [conDip,setConDip]=useState(””);
+const sett=settimane[0];
+const mie=richieste.filter(r=>r.dipNome===nome);
+const invia=()=>{
+setRichieste(p=>[…p,{id:Date.now(),dipNome:nome,tipo,data:sett.giorni[dIdx],stato:“In attesa”,nota:conDip?`Cambio con ${conDip}`:””}]);
+};
+return (
+<div style={S.page}>
+<div style={S.title}>RICHIESTE</div>
+<div style={{…S.card(“glow”),marginBottom:13}}>
+<div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:11}}>NUOVA RICHIESTA</div>
+<div style={{marginBottom:9}}>
+<label style={S.lbl}>TIPO</label>
+<div style={{display:“flex”,gap:7}}>
+{[“Giorno libero”,“Cambio turno”,“Permesso”].map(t=>(
+<button key={t} style={{flex:1,padding:“7px 3px”,borderRadius:8,border:`1px solid ${tipo===t?C.cyan:C.border}`,background:tipo===t?C.cyanA:“transparent”,color:tipo===t?C.cyan:C.dim,cursor:“pointer”,fontSize:11,fontFamily:”‘Rajdhani’,sans-serif”}} onClick={()=>setTipo(t)}>{t}</button>
+))}
+</div>
+</div>
+<div style={{marginBottom:9}}>
+<label style={S.lbl}>DATA</label>
+<div style={{display:“flex”,alignItems:“center”,gap:10}}>
+<button onClick={()=>setDIdx(Math.max(0,dIdx-1))} style={{background:“transparent”,border:`1px solid ${C.border}`,borderRadius:7,color:C.cyan,padding:“6px 10px”,cursor:“pointer”}}><Icon.ChevL/></button>
+<div style={{flex:1,textAlign:“center”,…mono,fontSize:13,color:C.text}}>{sett.giorni[dIdx]}</div>
+<button onClick={()=>setDIdx(Math.min(sett.giorni.length-1,dIdx+1))} style={{background:“transparent”,border:`1px solid ${C.border}`,borderRadius:7,color:C.cyan,padding:“6px 10px”,cursor:“pointer”}}><Icon.ChevR/></button>
+</div>
+</div>
+{tipo===“Cambio turno”&&(
+<div style={{marginBottom:9}}>
+<label style={S.lbl}>CAMBIO CON</label>
+<select style={S.inp} value={conDip} onChange={e=>setConDip(e.target.value)}>
+<option value="">Seleziona collega…</option>
+{STAFF.filter(s=>!s.inattivo&&!s.manager&&s.nome!==nome).map(s=><option key={s.id}>{s.nome}</option>)}
+</select>
+</div>
+)}
+<button style={S.btnP} onClick={invia}>INVIA RICHIESTA</button>
+</div>
+{mie.length>0&&(
+<>
+<div style={{...mono,fontSize:9,color:C.dim,letterSpacing:2,marginBottom:7}}>LE TUE RICHIESTE</div>
+{mie.map(r=>(
+<div key={r.id} style={{…S.card(””),display:“flex”,justifyContent:“space-between”,alignItems:“center”,marginBottom:7}}>
+<div><div style={{fontSize:13,fontWeight:600}}>{r.tipo}</div><div style={{fontSize:11,color:C.dim}}>{r.data}</div></div>
+<span style={S.badge(r.stato===“In attesa”?C.orange:r.stato===“Approvata”?C.green:C.red)}>{r.stato}</span>
+</div>
+))}
+</>
+)}
+</div>
+);
+}
+
+function DipendenteScansione({ordini, setOrdini}) {
+const [fase,setFase]=useState(“idle”);
+const [foto,setFoto]=useState([]);
+const [loc,setLoc]=useState(null);
+const [ordineId,setOrdineId]=useState(””);
+const fileRef=useRef(null);
+useEffect(()=>{
+if(navigator.geolocation)navigator.geolocation.getCurrentPosition(
+p=>{
+const lat=p.coords.latitude, lng=p.coords.longitude;
+const sedeGeo=Math.abs(lat-45.7369)<0.01?“Beauregard”:“Parini”;
+setLoc({lat,lng,sede:sedeGeo,ora:new Date().toLocaleTimeString(“it”).slice(0,5)});
+},
+()=>setLoc({sede:“Non rilevata”,ora:new Date().toLocaleTimeString(“it”).slice(0,5)})
+);
+},[]);
+const handleFile=(e)=>{const urls=Array.from(e.target.files).map(f=>URL.createObjectURL(f));setFoto(p=>[…p,…urls]);};
+const invia=()=>{
+if(!ordineId)return;
+setOrdini(prev=>prev.map(o=>o.id===parseInt(ordineId)?{…o,bolla:true,foto:foto[0]||null,oraBolla:loc?.ora,sedeBolla:loc?.sede}:o));
+setFase(“done”);
+};
+if(fase===“done”)return(
+<div style={{…S.page,textAlign:“center”,paddingTop:50}}>
+<div style={{width:65,height:65,borderRadius:“50%”,background:“rgba(50,215,75,.1)”,border:`2px solid ${C.green}`,display:“flex”,alignItems:“center”,justifyContent:“center”,margin:“0 auto 16px”,…mono,fontSize:28,color:C.green}}>✓</div>
+<div style={{...mono,color:C.green,fontSize:15,letterSpacing:2,marginBottom:9}}>BOLLA CERTIFICATA</div>
+<div style={{color:C.dim,fontSize:12,marginBottom:14,lineHeight:1.8}}>Inviata al manager · In attesa di verifica</div>
+<div style={{…S.card(””),fontSize:11,color:C.dim,…mono,lineHeight:2,textAlign:“left”}}>
+Sede: {loc?.sede||”—”}{”\n”}Ora: {loc?.ora||”—”}{”\n”}Foto allegate: {foto.length}
+</div>
+<button style={{…S.btnP,marginTop:14}} onClick={()=>{setFase(“idle”);setFoto([]);setOrdineId(””);}}>NUOVA SCANSIONE</button>
+</div>
+);
+return (
+<div style={S.page}>
+<div style={S.title}>SCANSIONE BOLLA</div>
+{loc&&<div style={{…S.card(“success”),marginBottom:9,fontSize:12,color:C.green}}>📍 Sede rilevata: <strong>{loc.sede}</strong> · {loc.ora}</div>}
+<div style={{…S.card(””),textAlign:“center”,minHeight:140,display:“flex”,flexDirection:“column”,alignItems:“center”,justifyContent:“center”,marginBottom:9}}>
+{foto.length===0
+?(<><div style={{color:C.dim,marginBottom:7}}><Icon.Scan/></div><div style={{color:C.dim,fontSize:13}}>Nessuna foto caricata</div><div style={{fontSize:11,color:C.dim,marginTop:4}}>Max 3 pagine per bolla</div></>)
+:(<><div style={{display:“flex”,gap:7,flexWrap:“wrap”,justifyContent:“center”,marginBottom:7}}>
+{foto.map((f,i)=><img key={i} src={f} style={{width:70,height:90,objectFit:“cover”,borderRadius:6,border:`1px solid ${C.green}`}}/>)}
+</div><div style={{fontSize:11,color:C.green,...mono}}>{foto.length} pagina/e caricata/e</div></>)
+}
+</div>
+<input ref={fileRef} type=“file” accept=“image/*” multiple style={{display:“none”}} onChange={handleFile}/>
+<div style={{display:“flex”,gap:7,marginBottom:foto.length?9:0}}>
+<button style={{…S.btn(C.cyan,false),flex:1,display:“flex”,alignItems:“center”,justifyContent:“center”,gap:6}} onClick={()=>fileRef.current?.click()}><Icon.Cam/> Scatta / Carica</button>
+<button style={{…S.btn(C.dim,false),flex:1}} onClick={()=>{fileRef.current.value=””;setFoto([]);}}>Cancella</button>
+</div>
+{foto.length>0&&(
+<>
+{foto.length<3&&<button style={{…S.btn(C.dim,true),marginBottom:9}} onClick={()=>fileRef.current?.click()}>+ Aggiungi pagina ({foto.length}/3)</button>}
+<div style={S.card(“glow”)}>
+<div style={{...mono,fontSize:9,color:C.cyan,letterSpacing:2,marginBottom:9}}>ASSOCIA A ORDINE</div>
+<select style={{…S.inp,marginBottom:9}} value={ordineId} onChange={e=>setOrdineId(e.target.value)}>
+<option value="">Seleziona ordine…</option>
+{ordini.filter(o=>o.stato!==“Consegnato”).map(o=><option key={o.id} value={o.id}>{o.fornitore} — {o.sede}</option>)}
+</select>
+<div style={{background:“rgba(50,215,75,.04)”,border:“1px solid rgba(50,215,75,.1)”,borderRadius:8,padding:“8px 11px”,fontSize:11,color:C.dim,…mono,marginBottom:9,lineHeight:1.8}}>
+📍 {loc?.sede||“rilevamento…”} · ⏰ {loc?.ora||”—”} · 📅 {new Date().toLocaleDateString(“it”)}
+</div>
+<button style={{…S.btnP,background:“rgba(50,215,75,.09)”,borderColor:C.green,color:C.green}} onClick={invia}>✓ CERTIFICA CONSEGNA</button>
+</div>
+</>
+)}
+</div>
+);
+}
+
+function DipendenteControlli({yv}) {
+const [pinState,setPinState]=useState(“locked”);
+const [pin,setPin]=useState(””);
+const [errPin,setErrPin]=useState(””);
+const [countdown,setCountdown]=useState(0);
+useEffect(()=>{
+if(countdown>0){const t=setTimeout(()=>setCountdown(c=>c-1),1000);return()=>clearTimeout(t);}
+if(countdown===0&&pinState===“unlocked”){setPinState(“locked”);setPin(””);}
+},[countdown,pinState]);
+const tryPin=()=>{
+if(pin===“1234”){setPinState(“unlocked”);setCountdown(240);setErrPin(””);}
+else{setErrPin(“PIN non valido — chiedi a Yannick”);setPin(””);}
+};
+if(pinState===“unlocked”)return(
+<div style={S.page}>
+<div style={{...S.row,marginBottom:13}}>
+<div style={S.title}>AREA CONTROLLI</div>
+<div style={{…mono,color:countdown<60?C.red:C.orange,fontSize:13}}>{Math.floor(countdown/60)}:{String(countdown%60).padStart(2,“0”)}</div>
+</div>
+<div style={{…S.card(“glow”),marginBottom:11,textAlign:“center”,padding:“20px 14px”}}>
+<div style={{marginBottom:12,display:“flex”,justifyContent:“center”}}>
+<YCKOrb size={80} state={yv.orbState} onClick={()=>yv.setShowChat(true)}/>
+</div>
+<div style={{...mono,fontSize:11,color:C.cyan,letterSpacing:2,marginBottom:6}}>CHIEDI A YARVICK</div>
+<div style={{fontSize:12,color:C.dim,marginBottom:12}}>Tocca l’orb o scrivi per consultare le procedure HACCP, verificare attestati, o ricevere supporto durante il controllo NAS</div>
+<button style={S.btnP} onClick={()=>yv.setShowChat(true)}>AVVIA CONSULTA YARVICK</button>
+</div>
+{[
+{t:“TEMPERATURE FRIGO”,b:“Frigo alimenti: 0–4°C\nCongelatori: -18°C o meno\nCompilare ogni mattina prima dell’apertura”},
+{t:“SANIFICAZIONE”,b:“Attrezzature e piani lavoro: QUOTIDIANO\nLocali: SETTIMANALE\nAttrezzature HACCP: MENSILE”},
+{t:“IGIENE PERSONALE”,b:“Vietati: anelli, bracciali, collane, orecchini, Smartwatch\nCapelli raccolti, unghie corte, divisa pulita”},
+{t:“TMC — CONSERVAZIONE”,b:“Salumi stagionati (crudo, speck): 7 giorni\nSalumi cotti (prosciutto, mortadella): 5 giorni\nFormaggi freschi: 3 giorni”},
+].map((s,i)=>(
+<div key={i} style={S.card(””)}>
+<div style={{...mono,fontSize:10,color:C.cyan,letterSpacing:1,marginBottom:7}}>{s.t}</div>
+<div style={{fontSize:12,color:C.text,lineHeight:1.8,whiteSpace:“pre-line”}}>{s.b}</div>
+</div>
+))}
+</div>
+);
+return(
+<div style={{…S.page,textAlign:“center”,paddingTop:50}}>
+<div style={{width:60,height:60,borderRadius:“50%”,background:C.cyanB,border:`1px solid ${C.cyan}`,display:“flex”,alignItems:“center”,justifyContent:“center”,margin:“0 auto 16px”,color:C.cyan}}><Icon.Lock/></div>
+<div style={{...mono,fontSize:14,color:C.cyan,letterSpacing:3,marginBottom:7}}>AREA PROTETTA</div>
+<div style={{color:C.dim,fontSize:12,marginBottom:24,lineHeight:1.7}}>Chiedi il PIN a Yannick per accedere durante i controlli NAS</div>
+<div style={{maxWidth:210,margin:“0 auto”}}>
+<label style={S.lbl}>PIN A 4 CIFRE</label>
+<input style={{…S.inp,textAlign:“center”,letterSpacing:10,fontSize:20,marginBottom:9}} type=“password” maxLength={4} value={pin} onChange={e=>setPin(e.target.value)} onKeyDown={e=>e.key===“Enter”&&tryPin()}/>
+{errPin&&<div style={{color:C.red,fontSize:10,marginBottom:7,...mono}}>{errPin}</div>}
+<button style={S.btnP} onClick={tryPin}>SBLOCCA</button>
+</div>
+</div>
+);
+}
+
+export default function App() {
+const [user,setUser]=useState(null);
+const [page,setPage]=useState(“home”);
+const [richieste,setRichieste]=useState(RICHIESTE_INIT);
+const [ordini,setOrdini]=useState(ORDINI_INIT);
+const [settimane,setSettimane]=useState(SETTIMANE_INIT);
+const yv=useYarvick(user?.role||””,user?.nome||””,richieste,setRichieste);
+if(!user)return <Login onLogin={(role,nome,dipId)=>{setUser({role,nome,dipId});setPage(“home”);}}/>;
+const isM=user.role===“manager”;
+const richAttesa=richieste.filter(r=>r.stato===“In attesa”).length;
+const manNav=[
+{id:“home”,    label:“HOME”,   icon:<Icon.Home/>},
+{id:“turni”,   label:“TURNI”,  icon:<Icon.Cal/>},
+{id:“agenda”,  label:“AGENDA”, icon:<Icon.Clip/>},
+{id:“ordini”,  label:“ORDINI”, icon:<Icon.Box/>},
+{id:“giacenze”,label:“DATI”,   icon:<Icon.Chart/>},
+];
+const dipNav=[
+{id:“home”,      label:“HOME”,     icon:<Icon.Home/>},
+{id:“turni”,     label:“TURNI”,    icon:<Icon.Cal/>},
+{id:“richieste”, label:“RICHIESTE”,icon:<Icon.Msg/>},
+{id:“scansione”, label:“BOLLA”,    icon:<Icon.Scan/>},
+{id:“controlli”, label:“CONTROLLI”,icon:<Icon.Shield/>},
+];
+const navItems=isM?manNav:dipNav;
+const renderPage=()=>{
+if(isM){switch(page){
+case”home”:     return <ManagerHome onNav={setPage} richieste={richieste} ordini={ordini}/>;
+case”turni”:    return <TurniGrid dipId={user.dipId} isManager={true} settimane={settimane} setSett={setSettimane}/>;
+case”agenda”:   return <ManagerAgenda/>;
+case”ordini”:   return <ManagerOrdini ordini={ordini} setOrdini={setOrdini}/>;
+case”giacenze”: return <ManagerGiacenze/>;
+case”staff”:    return <ManagerStaff/>;
+case”richieste”:return <ManagerRichieste richieste={richieste} setRichieste={setRichieste}/>;
+default:        return <ManagerHome onNav={setPage} richieste={richieste} ordini={ordini}/>;
+}}else{switch(page){
+case”home”:      return <DipendenteHome dipId={user.dipId} nome={user.nome} onNav={setPage} richieste={richieste} settimane={settimane}/>;
+case”turni”:     return <TurniGrid dipId={user.dipId} isManager={false} settimane={settimane} setSett={setSettimane}/>;
+case”richieste”: return <DipendenteRichieste nome={user.nome} richieste={richieste} setRichieste={setRichieste} settimane={settimane}/>;
+case”scansione”: return <DipendenteScansione ordini={ordini} setOrdini={setOrdini}/>;
+case”controlli”: return <DipendenteControlli yv={yv}/>;
+default:         return <DipendenteHome dipId={user.dipId} nome={user.nome} onNav={setPage} richieste={richieste} settimane={settimane}/>;
+}}
+};
+return(
+<div style={{background:C.bg,minHeight:“100vh”,fontFamily:”‘Rajdhani’,sans-serif”,maxWidth:480,margin:“0 auto”,position:“relative”}}>
+<div style={S.header}>
+<div style={{display:“flex”,alignItems:“center”,gap:9}}>
+<YCKOrb size={34} state={yv.orbState} onClick={()=>yv.setShowChat(true)}/>
+<div>
+<div style={{…mono,fontSize:18,color:C.cyan,letterSpacing:4,textShadow:`0 0 10px rgba(0,229,255,.4)`}}>YARVICK</div>
+<div style={{fontSize:9,color:C.dim,letterSpacing:2}}>{isM?“MANAGER · SIRIO BAR”:`${user.nome.toUpperCase()} · SIRIO BAR`}</div>
+</div>
+</div>
+<div style={{display:“flex”,gap:5}}>
+{isM&&page!==“staff”&&<button style={{background:C.cyanB,border:`1px solid ${C.border}`,borderRadius:8,color:C.cyan,padding:“6px 9px”,cursor:“pointer”,fontSize:11,…mono}} onClick={()=>setPage(“staff”)}><Icon.Staff/></button>}
+{isM&&richAttesa>0&&<button style={{background:“rgba(255,159,10,.09)”,border:“1px solid rgba(255,159,10,.3)”,borderRadius:8,color:C.orange,padding:“6px 10px”,cursor:“pointer”,…mono,fontSize:11,position:“relative”}} onClick={()=>setPage(“richieste”)}>{richAttesa} rich.</button>}
+<button style={{background:“transparent”,border:`1px solid ${C.border}`,borderRadius:8,color:C.dim,padding:“6px 9px”,cursor:“pointer”,fontSize:11,…mono}} onClick={()=>setUser(null)}><Icon.Out/></button>
+</div>
+</div>
+{renderPage()}
+<nav style={S.nav}>
+{navItems.map(n=>{
+const active=page===n.id;
+const badge=n.id===“richieste”&&!isM&&richieste.filter(r=>r.dipNome===user.nome&&r.stato===“In attesa”).length;
+return(
+<button key={n.id} style={S.navBtn(active)} onClick={()=>setPage(n.id)}>
+{badge>0&&<div style={{position:“absolute”,top:2,right:8,width:7,height:7,borderRadius:“50%”,background:C.orange}}/>}
+<div style={{filter:active?`drop-shadow(0 0 5px ${C.cyan})`:“none”}}>{n.icon}</div>
+<div style={S.navLabel}>{n.label}</div>
+{active&&<div style={{width:16,height:2,background:C.cyan,borderRadius:1,marginTop:2}}/>}
+</button>
+);
+})}
+</nav>
+{yv.showChat&&<YarvickOverlay yv={yv} onClose={()=>yv.setShowChat(false)}/>}
+</div>
+);
+}
+
+ReactDOM.createRoot(document.getElementById(“root”)).render(<App/>);
+</script>
+
+</body>
+</html>
